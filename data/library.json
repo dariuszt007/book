@@ -10,5 +10,15 @@
       "cover": "covers/sample-cover.jpg",
       "description": "Przykładowa książka startowa."
     }
+    {
+  "id": "bocian",
+  "title": "Bocian",
+  "author": "Dariusz",
+  "language": "pl",
+  "category": "Kulinarna, przygodowa, dla dzieci",
+  "epub": "books/bocian.epub",
+  "cover": "covers/bocian.jpg",
+  "description": "O gotowaniu"
+}
   ]
 }
