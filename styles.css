@@ -269,16 +269,9 @@ select {
 
 
 
-.reader-overlay-bottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: env(safe-area-inset-bottom, 0);
-  z-index: 30;
-  padding: 8px 12px 14px;
-  background: linear-gradient(to top, rgba(0,0,0,0.58), rgba(0,0,0,0));
-  transition: opacity 0.2s ease;
-}
+TUTAJ 1
+
+
 
 .reader-meta-compact {
   flex: 1;
