@@ -1,0 +1,24 @@
+{
+  "books": [
+    {
+      "id": "sample-book",
+      "title": "Przykładowa książka",
+      "author": "Autor Demo",
+      "language": "pl",
+      "category": "demo",
+      "epub": "books/sample-book.epub",
+      "cover": "covers/sample-cover.jpg",
+      "description": "Przykładowa książka startowa."
+    },
+    {
+      "id": "moj-roman",
+      "title": "Mój Roman",
+      "author": "Jan Kowalski",
+      "language": "pl",
+      "category": "powieść",
+      "epub": "books/moj-roman.epub",
+      "cover": "covers/moj-roman.jpg",
+      "description": "Krótki opis książki"
+    }
+  ]
+}
