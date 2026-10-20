@@ -760,3 +760,38 @@ select {
 .drawer-theme-grid .theme-aa {
   font-size: 38px;
 }
+
+
+
+/* Lepsza czytelność przycisków ustawień w drawerze */
+
+.drawer .segmented-group {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.drawer .seg-btn {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.drawer .seg-btn-large {
+  color: #f8fafc;
+}
+
+.drawer .seg-btn.active {
+  background: #f8fafc;
+  color: #111827;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.drawer-settings-controls .segmented-group {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-settings-controls .seg-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.drawer-settings-controls .seg-btn.active:hover {
+  background: #f8fafc;
+}
