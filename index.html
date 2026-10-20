@@ -1,1 +1,159 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Biblioteka EPUB PRO</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+</head>
+<body>
+  <header class="topbar" id="mainTopbar">
+    <div>
+      <h1>Biblioteka EPUB PRO</h1>
+      <p class="subtitle">Kliknij książkę, aby otworzyć czytnik</p>
+    </div>
+    <nav class="topbar-actions">
+      <a class="btn secondary" href="admin.html">Panel administratora</a>
+    </nav>
+  </header>
 
+  <main class="library-page" id="libraryPage">
+    <aside class="reader-sidebar">
+      <section class="panel">
+        <div class="section-head">
+          <h2>Biblioteka</h2>
+          <button id="refreshLibraryBtn" class="btn">Odśwież</button>
+        </div>
+
+        <input id="searchBooksInput" type="text" placeholder="Szukaj książki..." />
+        <div id="booksList" class="books-list"></div>
+      </section>
+    </aside>
+
+    <section class="reader-main">
+      <section class="panel">
+        <div class="welcome-box">
+          <h2>Wybierz książkę</h2>
+          <p>Po kliknięciu książka otworzy się w pełnoekranowym czytniku EPUB.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <section class="reader-screen hidden" id="readerScreen">
+    <div class="reader-overlay-top" id="readerTopBar">
+      <button id="closeReaderBtn" class="icon-btn" aria-label="Zamknij">✕</button>
+
+      <div class="reader-meta-compact">
+        <div id="readerBookTitle" class="reader-title">Tytuł książki</div>
+        <div id="readerBookAuthor" class="reader-author">Autor</div>
+      </div>
+
+      <button id="openMenuBtn" class="icon-btn" aria-label="Menu">☰</button>
+    </div>
+
+    <div class="reader-overlay-bottom" id="readerBottomBar">
+      <div id="readingProgressText" class="progress-text">Postęp: 0%</div>
+    </div>
+
+    <div class="reader-center-tap-zone" id="toggleUiZone"></div>
+
+    <div class="reader-content">
+      <div class="reader-stage">
+        <button id="prevPageBtn" class="tap-nav tap-nav-left" aria-label="Poprzednia strona"></button>
+        <div id="viewer" class="viewer"></div>
+        <button id="nextPageBtn" class="tap-nav tap-nav-right" aria-label="Następna strona"></button>
+      </div>
+
+      <aside id="menuDrawer" class="drawer hidden">
+        <div class="drawer-inner">
+          <div class="drawer-head">
+            <h3>Menu czytnika</h3>
+            <button id="closeMenuBtn" class="btn secondary">Zamknij</button>
+          </div>
+
+          <div class="drawer-actions">
+            <button id="toggleLibraryBtn" class="btn secondary">Biblioteka</button>
+            <button id="toggleTocBtn" class="btn secondary">Spis treści</button>
+            <button id="openSettingsModalBtn" class="btn secondary">Motywy i ustawienia</button>
+          </div>
+
+          <div id="readerLibraryPanel" class="drawer-section hidden">
+            <h4>Biblioteka</h4>
+            <div id="readerBooksList" class="books-list compact-books"></div>
+          </div>
+
+          <div id="tocPanel" class="drawer-section hidden">
+            <h4>Spis treści</h4>
+            <div id="tocList" class="toc-list"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="settingsModal" class="settings-modal hidden">
+      <div class="settings-card">
+        <div class="settings-header">
+          <h2>Motywy i ustawienia</h2>
+          <button id="closeSettingsModalBtn" class="settings-close-btn" aria-label="Zamknij">✕</button>
+        </div>
+
+        <div class="settings-top-controls">
+          <div class="segmented-group">
+            <button id="fontMinusBtn" class="seg-btn">A</button>
+            <button id="fontPlusBtn" class="seg-btn seg-btn-large">A</button>
+          </div>
+
+          <div class="segmented-group">
+            <button id="spreadOneBtn" class="seg-btn">1 str.</button>
+            <button id="spreadTwoBtn" class="seg-btn">2 str.</button>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <span class="slider-icon">☀︎</span>
+          <input id="marginRange" type="range" min="10" max="30" step="10" value="20" />
+          <span class="slider-icon">☀️</span>
+        </div>
+
+        <div class="theme-grid">
+          <button class="theme-tile" data-theme="light">
+            <span class="theme-aa">Aa</span>
+            <span>Oryginalny</span>
+          </button>
+
+          <button class="theme-tile" data-theme="dark">
+            <span class="theme-aa">Aa</span>
+            <span>Cichy</span>
+          </button>
+
+          <button class="theme-tile" data-theme="paper">
+            <span class="theme-aa">Aa</span>
+            <span>Papierowy</span>
+          </button>
+
+          <button class="theme-tile" data-theme="contrast">
+            <span class="theme-aa">Aa</span>
+            <span>Wyrazisty</span>
+          </button>
+
+          <button class="theme-tile active" data-theme="sepia">
+            <span class="theme-aa">Aa</span>
+            <span>Spokojny</span>
+          </button>
+
+          <button class="theme-tile" data-theme="focus">
+            <span class="theme-aa">Aa</span>
+            <span>Skupiony</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/utils.js"></script>
+  <script src="js/reader.js"></script>
+</body>
+</html>
