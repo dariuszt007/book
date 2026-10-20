@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>Panel administratora - EPUB PRO</title>
+
+  <link rel="stylesheet" href="admin.css?v=20261020-41" />
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+</head>
+<body class="admin-body">
+  <header class="admin-topbar">
+    <div class="admin-topbar__brand">
+      <p class="admin-eyebrow">EPUB PRO</p>
+      <h1>Panel administratora</h1>
+      <p class="admin-topbar__text">
+        Prosty kreator tworzenia i edycji książek: treść, ilustracje, okładka, metadane i eksport.
+      </p>
+    </div>
+
+    <div class="admin-topbar__actions">
+      <button id="goToStartBtn" class="admin-btn admin-btn--ghost" type="button">
+        Start
+      </button>
+      <a class="admin-btn admin-btn--ghost" href="index.html">Czytnik</a>
+    </div>
+  </header>
+
+  <main class="admin-wizard">
+    <section class="wizard-progress panel-box">
+      <div class="wizard-progress__inner">
+        <div class="wizard-progress__item active" data-step-indicator="start">
+          <span>1</span>
+          <strong>Start</strong>
+        </div>
+        <div class="wizard-progress__item" data-step-indicator="repo">
+          <span>2</span>
+          <strong>Repo</strong>
+        </div>
+        <div class="wizard-progress__item" data-step-indicator="editor">
+          <span>3</span>
+          <strong>Edytor</strong>
+        </div>
+        <div class="wizard-progress__item" data-step-indicator="cover">
+          <span>4</span>
+          <strong>Okładka</strong>
+        </div>
+        <div class="wizard-progress__item" data-step-indicator="metadata">
+          <span>5</span>
+          <strong>Metadane</strong>
+        </div>
+        <div class="wizard-progress__item" data-step-indicator="export">
+          <span>6</span>
+          <strong>Eksport</strong>
+        </div>
+      </div>
+    </section>
+
+    <section id="startScreen" class="wizard-screen panel-box active-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="section-heading section-heading--center">
+          <div>
+            <p class="section-kicker">START</p>
+            <h2>Od czego chcesz zacząć?</h2>
+            <p class="section-text">
+              Wybierz jedną z trzech ścieżek. Po kliknięciu przejdziesz od razu do kolejnego etapu pracy.
+            </p>
+          </div>
+        </div>
+
+        <div class="start-actions-grid start-actions-grid--big">
+          <button id="startNewBookBtn" class="start-card start-card--primary" type="button">
+            <span class="start-card__icon">＋</span>
+            <span class="start-card__title">Nowa książka</span>
+            <span class="start-card__desc">
+              Utwórz nowy projekt i przejdź od razu do pełnoekranowego edytora treści i rozdziałów.
+            </span>
+          </button>
+
+          <label class="start-card" for="importBookInput">
+            <span class="start-card__icon">⇪</span>
+            <span class="start-card__title">Import pliku</span>
+            <span class="start-card__desc">
+              Zaimportuj EPUB, DOCX, ODT, HTML albo TXT i przejdź do edytora z załadowaną treścią.
+            </span>
+          </label>
+
+          <button id="openRepoBtn" class="start-card" type="button">
+            <span class="start-card__icon">☰</span>
+            <span class="start-card__title">Otwórz z repo</span>
+            <span class="start-card__desc">
+              Wybierz książkę z repo do edycji albo usuń książkę z listy.
+            </span>
+          </button>
+        </div>
+
+        <input id="importBookInput" type="file" accept=".epub,.docx,.odt,.html,.txt" hidden />
+      </div>
+    </section>
+
+    <section id="repoScreen" class="wizard-screen panel-box">
+      <div class="screen-shell">
+        <div class="section-heading section-heading--split">
+          <div>
+            <p class="section-kicker">REPO</p>
+            <h2>Twoje książki w repo</h2>
+            <p class="section-text">
+              Wybierz książkę do edycji albo usuń ją z repo. Po wybraniu książki przechodzisz dalej do edytora.
+            </p>
+          </div>
+
+          <div class="section-heading__actions">
+            <button id="refreshRepoBtn" class="admin-btn admin-btn--secondary" type="button">
+              Odśwież listę
+            </button>
+          </div>
+        </div>
+
+        <div class="repo-toolbar">
+          <input
+            id="repoSearchInput"
+            class="admin-input"
+            type="text"
+            placeholder="Szukaj po tytule, autorze lub kategorii..."
+          />
+        </div>
+
+        <div id="repoBooksList" class="repo-books-list">
+          <div class="empty-state">Lista książek z repo pojawi się tutaj.</div>
+        </div>
+
+        <div class="wizard-nav wizard-nav--single">
+          <button id="backFromRepoBtn" class="admin-btn admin-btn--ghost" type="button">
+            Wróć do startu
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="editorScreen" class="wizard-screen panel-box">
+      <div class="screen-shell screen-shell--editor">
+        <div class="section-heading section-heading--split">
+          <div>
+            <p class="section-kicker">EDYTOR</p>
+            <h2>Treść książki i rozdziały</h2>
+            <p class="section-text">
+              Edytuj treść, zarządzaj rozdziałami i dodawaj ilustracje bezpośrednio do tekstu książki.
+            </p>
+          </div>
+
+          <div class="section-heading__actions">
+            <button id="saveDraftBtn" class="admin-btn admin-btn--secondary" type="button">
+              Zapisz roboczo
+            </button>
+            <button id="loadDraftBtn" class="admin-btn admin-btn--secondary" type="button">
+              Wczytaj robocze
+            </button>
+          </div>
+        </div>
+
+        <div class="editor-stage">
+          <aside class="chapter-sidebar">
+            <div class="chapter-sidebar__head">
+              <h3>Rozdziały</h3>
+              <p>Dodawaj, wybieraj i zmieniaj kolejność rozdziałów.</p>
+            </div>
+
+            <div class="chapter-sidebar__actions">
+              <button id="addChapterBtn" class="admin-btn admin-btn--primary" type="button">
+                Dodaj rozdział
+              </button>
+              <button id="moveChapterUpBtn" class="admin-btn admin-btn--secondary" type="button">
+                Przesuń w górę
+              </button>
+              <button id="moveChapterDownBtn" class="admin-btn admin-btn--secondary" type="button">
+                Przesuń w dół
+              </button>
+              <button id="duplicateChapterBtn" class="admin-btn admin-btn--secondary" type="button">
+                Duplikuj
+              </button>
+              <button id="deleteChapterBtn" class="admin-btn admin-btn--danger" type="button">
+                Usuń
+              </button>
+            </div>
+
+            <div id="chaptersList" class="chapters-list">
+              <div class="empty-state">Nie ma jeszcze rozdziałów.</div>
+            </div>
+          </aside>
+
+          <div class="editor-main">
+            <div class="chapter-meta-row">
+              <input
+                id="chapterTitleInput"
+                class="admin-input"
+                type="text"
+                placeholder="Tytuł rozdziału"
+              />
+              <input
+                id="chapterFileInput"
+                class="admin-input"
+                type="text"
+                placeholder="np. chapter-1.xhtml"
+              />
+            </div>
+
+            <div class="editor-workspace panel-inline-box">
+              <div class="editor-workspace__top">
+                <div class="word-editor-toolbar" id="wordEditorToolbar">
+                  <button type="button" data-cmd="bold"><strong>B</strong></button>
+                  <button type="button" data-cmd="italic"><em>I</em></button>
+                  <button type="button" data-cmd="underline"><u>U</u></button>
+                  <button type="button" data-cmd="formatBlock" data-value="h1">H1</button>
+                  <button type="button" data-cmd="formatBlock" data-value="h2">H2</button>
+                  <button type="button" data-cmd="formatBlock" data-value="h3">H3</button>
+                  <button type="button" data-cmd="formatBlock" data-value="h4">H4</button>
+                  <button type="button" data-cmd="formatBlock" data-value="p">P</button>
+                  <button type="button" data-cmd="insertUnorderedList">• Lista</button>
+                  <button type="button" data-cmd="insertOrderedList">1. Lista</button>
+                  <button type="button" data-cmd="formatBlock" data-value="blockquote">Cytat</button>
+                  <button type="button" data-cmd="justifyLeft">Lewo</button>
+                  <button type="button" data-cmd="justifyCenter">Środek</button>
+                  <button type="button" data-cmd="justifyRight">Prawo</button>
+                  <button type="button" data-cmd="justifyFull">Wyjustuj</button>
+                </div>
+
+                <div class="editor-inline-media">
+                  <div class="editor-inline-media__head">
+                    <h3>Ilustracje w treści</h3>
+                    <p>Dodaj obraz i wstaw go dokładnie w miejscu kursora.</p>
+                  </div>
+
+                  <div class="editor-inline-media__controls">
+                    <input id="imagesInput" class="admin-input" type="file" accept="image/*" multiple />
+                    <button id="insertSelectedImageBtn" class="admin-btn admin-btn--primary" type="button">
+                      Wstaw do tekstu
+                    </button>
+                  </div>
+
+                  <div id="imagesList" class="images-list images-list--inline">
+                    <div class="empty-state">Brak ilustracji.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="word-editor-box word-editor-box--integrated">
+                <div class="editor-scroll-area">
+                  <div
+                    id="chapterEditor"
+                    class="word-editor-surface"
+                    contenteditable="true"
+                    spellcheck="true"
+                  >
+                    <p>Zacznij pisać treść rozdziału tutaj...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-panel">
+              <label class="field">
+                <span>HTML aktualnego rozdziału</span>
+                <textarea
+                  id="chapterHtmlInput"
+                  class="admin-textarea admin-textarea--code"
+                  rows="10"
+                  placeholder="Tutaj może pojawić się kod HTML rozdziału"
+                ></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-nav">
+          <button id="backFromEditorBtn" class="admin-btn admin-btn--ghost" type="button">
+            Wstecz
+          </button>
+          <button id="goToCoverBtn" class="admin-btn admin-btn--primary" type="button">
+            Dalej: okładka
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="coverScreen" class="wizard-screen panel-box">
+      <div class="screen-shell">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">OKŁADKA</p>
+            <h2>Dodaj okładkę książki</h2>
+            <p class="section-text">
+              Wybierz plik okładki. Po dodaniu przejdziesz dalej do metadanych książki.
+            </p>
+          </div>
+        </div>
+
+        <div class="cover-stage">
+          <div class="cover-stage__controls">
+            <input id="coverInput" class="admin-input" type="file" accept="image/*" />
+          </div>
+
+          <div class="cover-preview-wrap cover-preview-wrap--large">
+            <img id="coverPreview" class="cover-preview cover-preview--large" alt="Podgląd okładki" />
+          </div>
+        </div>
+
+        <div class="wizard-nav">
+          <button id="backToEditorBtn" class="admin-btn admin-btn--ghost" type="button">
+            Wstecz: edytor
+          </button>
+          <button id="goToMetadataBtn" class="admin-btn admin-btn--primary" type="button">
+            Dalej: metadane
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="metadataScreen" class="wizard-screen panel-box">
+      <div class="screen-shell">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">METADANE</p>
+            <h2>Uzupełnij dane książki</h2>
+            <p class="section-text">
+              Uzupełnij wszystkie dane potrzebne do eksportu i wpisu do biblioteki.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid--2">
+          <label class="field">
+            <span>Tytuł książki</span>
+            <input id="bookTitleInput" class="admin-input" type="text" placeholder="Np. Moja książka" />
+          </label>
+
+          <label class="field">
+            <span>Autor</span>
+            <input id="bookAuthorInput" class="admin-input" type="text" placeholder="Imię i nazwisko autora" />
+          </label>
+
+          <label class="field">
+            <span>Kategoria</span>
+            <input id="bookCategoryInput" class="admin-input" type="text" placeholder="Np. Powieść, Fantasy, Esej" />
+          </label>
+
+          <label class="field">
+            <span>Język</span>
+            <input id="bookLanguageInput" class="admin-input" type="text" value="pl" placeholder="pl" />
+          </label>
+
+          <label class="field">
+            <span>Id / slug projektu</span>
+            <input id="bookSlugInput" class="admin-input" type="text" placeholder="np. moja-ksiazka" />
+          </label>
+
+          <label class="field">
+            <span>Nazwa pliku eksportu</span>
+            <input id="bookFileNameInput" class="admin-input" type="text" placeholder="np. moja-ksiazka.epub" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Opis książki</span>
+          <textarea
+            id="bookDescriptionInput"
+            class="admin-textarea"
+            rows="8"
+            placeholder="Krótki opis książki, notka wydawnicza albo opis projektu"
+          ></textarea>
+        </label>
+
+        <div class="wizard-nav">
+          <button id="backToCoverBtn" class="admin-btn admin-btn--ghost" type="button">
+            Wstecz: okładka
+          </button>
+          <button id="goToExportBtn" class="admin-btn admin-btn--primary" type="button">
+            Dalej: eksport
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="exportScreen" class="wizard-screen panel-box">
+      <div class="screen-shell">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">EKSPORT</p>
+            <h2>Zapisz i wyeksportuj książkę</h2>
+            <p class="section-text">
+              Pobierz książkę w wybranym formacie i skopiuj gotowy fragment do <code>library.json</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="project-summary-box">
+          <div class="project-summary-box__header">
+            <h3>Aktualny projekt</h3>
+            <p>Tu widzisz podstawowe informacje o książce przed eksportem.</p>
+          </div>
+
+          <div class="project-summary-grid">
+            <div class="summary-item">
+              <span class="summary-item__label">Tytuł</span>
+              <strong id="currentProjectTitle">Brak projektu</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__label">Autor</span>
+              <strong id="currentProjectAuthor">—</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__label">Źródło</span>
+              <strong id="currentProjectSource">Nowy projekt / import / repo</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__label">Liczba rozdziałów</span>
+              <strong id="currentProjectChapterCount">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="export-grid">
+          <article class="export-card">
+            <h3>Eksport EPUB</h3>
+            <p>Standardowy plik EPUB do czytników i bibliotek cyfrowych.</p>
+            <button id="exportEpubBtn" class="admin-btn admin-btn--primary" type="button">
+              Eksportuj EPUB
+            </button>
+          </article>
+
+          <article class="export-card">
+            <h3>Eksport HTML</h3>
+            <p>Całą książkę jako jeden dokument HTML.</p>
+            <button id="exportHtmlBtn" class="admin-btn admin-btn--secondary" type="button">
+              Eksportuj HTML
+            </button>
+          </article>
+
+          <article class="export-card">
+            <h3>Eksport TXT</h3>
+            <p>Prosty tekst bez zaawansowanego formatowania.</p>
+            <button id="exportTxtBtn" class="admin-btn admin-btn--secondary" type="button">
+              Eksportuj TXT
+            </button>
+          </article>
+
+          <article class="export-card">
+            <h3>Backup projektu JSON</h3>
+            <p>Pełna kopia projektu roboczego do dalszej edycji i odzyskiwania.</p>
+            <button id="exportJsonBtn" class="admin-btn admin-btn--secondary" type="button">
+              Eksportuj JSON projektu
+            </button>
+          </article>
+
+          <article class="export-card">
+            <h3>Wpis do library.json</h3>
+            <p>Gotowy rekord do wklejenia do tablicy <code>books</code> w <code>data/library.json</code>.</p>
+            <button id="exportLibraryEntryBtn" class="admin-btn admin-btn--secondary" type="button">
+              Eksportuj wpis do library.json
+            </button>
+          </article>
+
+          <article class="export-card">
+            <h3>Zapis roboczy</h3>
+            <p>Zapisz bieżący projekt lokalnie przed końcowym eksportem.</p>
+            <button id="saveDraftMainBtn" class="admin-btn admin-btn--secondary" type="button">
+              Zapisz roboczo
+            </button>
+          </article>
+        </div>
+
+        <label class="field">
+          <span>Log operacji</span>
+          <textarea
+            id="adminLogOutput"
+            class="admin-textarea admin-textarea--code"
+            rows="10"
+            placeholder="Tu będą pojawiać się komunikaty o imporcie, zapisie i eksporcie"
+          ></textarea>
+        </label>
+
+        <div class="wizard-nav">
+          <button id="backToMetadataBtn" class="admin-btn admin-btn--ghost" type="button">
+            Wstecz: metadane
+          </button>
+          <button id="finishToStartBtn" class="admin-btn admin-btn--primary" type="button">
+            Zakończ i wróć do startu
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/utils.js?v=20261020-41"></script>
+  <script src="js/admin.js?v=20261020-41"></script>
+</body>
+</html>
