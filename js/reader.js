@@ -86,7 +86,84 @@ function renderBooks(books, container) {
 }
 
 
-TUTAJ WKLEJ
+async function openBook(bookMeta) {
+  currentBookMeta = bookMeta;
+
+  readerBookTitle.textContent = bookMeta.title || "Bez tytułu";
+  readerBookAuthor.textContent = bookMeta.author || "Nieznany autor";
+
+  libraryPage.classList.add("hidden");
+  readerScreen.classList.remove("hidden");
+  readerSettingsBar.classList.add("hidden");
+  tocPanel.classList.add("hidden");
+  readerLibraryPanel.classList.add("hidden");
+  tocList.innerHTML = "";
+  viewer.innerHTML = `
+    <div style="padding:24px;color:#111827;background:#fff;height:100%;overflow:auto;">
+      <p>Ładowanie książki...</p>
+    </div>
+  `;
+
+  try {
+    console.log("Fetching EPUB:", bookMeta.epub);
+
+    const response = await fetch(`${bookMeta.epub}?v=${Date.now()}`);
+    if (!response.ok) {
+      throw new Error(`Nie udało się pobrać EPUB. HTTP ${response.status}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    console.log("EPUB fetched, size:", arrayBuffer.byteLength);
+
+    currentBook = ePub(arrayBuffer);
+
+    viewer.innerHTML = "";
+
+    rendition = currentBook.renderTo("viewer", {
+      width: viewer.clientWidth || window.innerWidth,
+      height: viewer.clientHeight || 600,
+      spread: currentSpread,
+      flow: "paginated",
+      manager: "default"
+    });
+
+    applyReaderSettings();
+
+    const savedLocation = localStorage.getItem(getLocationStorageKey(bookMeta.id));
+
+    await rendition.display(savedLocation || undefined);
+
+    console.log("Rendition display done");
+
+    currentBook.ready.then(() => {
+      console.log("EPUB ready");
+      loadTableOfContents();
+      setTimeout(() => rendition?.resize(), 100);
+    });
+
+    rendition.on("relocated", (location) => {
+      if (location?.start?.cfi) {
+        localStorage.setItem(getLocationStorageKey(bookMeta.id), location.start.cfi);
+      }
+
+      const percentage = location?.start?.percentage || 0;
+      readingProgressText.textContent = `Postęp: ${Math.round(percentage * 100)}%`;
+    });
+
+  } catch (error) {
+    console.error("EPUB open error:", error);
+
+    viewer.innerHTML = `
+      <div style="padding:24px;color:#111827;background:#fff;height:100%;overflow:auto;">
+        <h2>Nie udało się otworzyć książki</h2>
+        <p><strong>Plik:</strong> ${bookMeta.epub}</p>
+        <p><strong>Błąd:</strong> ${error?.message || error}</p>
+        <p>Sprawdź poprawność pliku EPUB oraz ścieżkę w <code>data/library.json</code>.</p>
+      </div>
+    `;
+  }
+}
+
 
 
 
