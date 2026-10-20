@@ -1,13 +1,13 @@
 {
   "books": [
 {
-  "id": "bocian-stas-gotuje",
-  "title": "Bocian Staś Gotuje",
-  "author": "Dariusz Aleksander",
+  "id": "bocian",
+  "title": "bocian",
+  "author": "Dariusz",
   "language": "pl",
-  "category": "",
-  "epub": "books/bocian-stas-gotuje.epub",
-  "cover": "covers/bocian-stas-gotuje.jpg",
+  "category": "dla dzieci",
+  "epub": "books/bocian.epub",
+  "cover": "covers/bocian.jpg",
   "description": ""
 }
   ]
