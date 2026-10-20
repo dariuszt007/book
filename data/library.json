@@ -1,1 +1,14 @@
-
+{
+  "books": [
+    {
+      "id": "bocian",
+      "title": "Bocian",
+      "author": "Nieznany autor",
+      "language": "pl",
+      "category": "inne",
+      "epub": "books/bocian.epub",
+      "cover": "covers/bocian.jpg",
+      "description": "Przykładowa książka EPUB."
+    }
+  ]
+}
