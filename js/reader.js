@@ -204,42 +204,9 @@ function applyReaderSettings() {
   setTimeout(() => rendition?.resize(), 100);
 }
 
-async function rebuildRendition() {
-  if (!currentBookMeta) return;
 
-  const savedLocation =
-    rendition?.currentLocation()?.start?.cfi ||
-    localStorage.getItem(getLocationStorageKey(currentBookMeta.id)) ||
-    undefined;
+TUTAJ WPISZ
 
-  viewer.innerHTML = "";
-
-  currentBook = ePub(currentBookMeta.epub);
-  rendition = currentBook.renderTo("viewer", {
-    width: "100%",
-    height: "100%",
-    spread: currentSpread,
-    flow: "paginated",
-    manager: "default"
-  });
-
-  applyReaderSettings();
-  await rendition.display(savedLocation);
-
-  rendition.on("relocated", (location) => {
-    if (location?.start?.cfi) {
-      localStorage.setItem(getLocationStorageKey(currentBookMeta.id), location.start.cfi);
-    }
-
-    const percentage = location?.start?.percentage || 0;
-    readingProgressText.textContent = `Postęp: ${Math.round(percentage * 100)}%`;
-  });
-
-  currentBook.ready.then(() => {
-    loadTableOfContents();
-    setTimeout(() => rendition?.resize(), 100);
-  });
-}
 
 async function loadTableOfContents() {
   if (!currentBook?.navigation?.toc) return;
