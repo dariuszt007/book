@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteka EPUB PRO</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Biblioteka EPUB PRO</h1>
+      <p class="subtitle">Profesjonalniejszy czytnik EPUB online</p>
+    </div>
+    <nav class="topbar-actions">
+      <a class="btn secondary" href="admin.html">Panel administratora</a>
+    </nav>
+  </header>
 
+  <main class="reader-pro-layout">
+    <aside class="reader-sidebar">
+      <section class="panel">
+        <div class="section-head">
+          <h2>Biblioteka</h2>
+          <button id="refreshLibraryBtn" class="btn">Odśwież</button>
+        </div>
+
+        <input id="searchBooksInput" type="text" placeholder="Szukaj książki..." />
+        <div id="booksList" class="books-list"></div>
+      </section>
+    </aside>
+
+    <section class="reader-main">
+      <section class="panel">
+        <div id="bookInfo" class="book-info empty">
+          Wybierz książkę z biblioteki.
+        </div>
+
+        <div id="readerToolbar" class="reader-toolbar hidden">
+          <div class="toolbar-group">
+            <button id="prevPageBtn" class="btn secondary">Poprzednia</button>
+            <button id="nextPageBtn" class="btn secondary">Następna</button>
+          </div>
+
+          <div class="toolbar-group">
+            <button id="decreaseFontBtn" class="btn secondary">A-</button>
+            <button id="increaseFontBtn" class="btn secondary">A+</button>
+            <select id="themeSelect">
+              <option value="light">Jasny</option>
+              <option value="sepia">Sepia</option>
+              <option value="dark">Ciemny</option>
+            </select>
+          </div>
+
+          <div class="toolbar-group">
+            <button id="toggleTocBtn" class="btn secondary">Spis treści</button>
+            <button id="fullscreenBtn" class="btn secondary">Pełny ekran</button>
+          </div>
+        </div>
+
+        <div id="readerStatus" class="reader-status hidden">
+          <span id="readingProgressText">Postęp: 0%</span>
+        </div>
+
+        <div class="reader-stage">
+          <aside id="tocPanel" class="toc-panel hidden">
+            <h3>Spis treści</h3>
+            <div id="tocList" class="toc-list"></div>
+          </aside>
+
+          <div id="viewer" class="viewer pro-viewer"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/reader.js"></script>
+</body>
+</html>
