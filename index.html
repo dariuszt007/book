@@ -1,1 +1,136 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteka EPUB PRO</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+</head>
+<body>
+  <header class="topbar" id="mainTopbar">
+    <div>
+      <h1>Biblioteka EPUB PRO</h1>
+      <p class="subtitle">Kliknij książkę, aby otworzyć czytnik na cały ekran</p>
+    </div>
+    <nav class="topbar-actions">
+      <a class="btn secondary" href="admin.html">Panel administratora</a>
+    </nav>
+  </header>
 
+  <main class="library-page" id="libraryPage">
+    <aside class="reader-sidebar">
+      <section class="panel">
+        <div class="section-head">
+          <h2>Biblioteka</h2>
+          <button id="refreshLibraryBtn" class="btn">Odśwież</button>
+        </div>
+
+        <input id="searchBooksInput" type="text" placeholder="Szukaj książki..." />
+        <div id="booksList" class="books-list"></div>
+      </section>
+    </aside>
+
+    <section class="reader-main">
+      <section class="panel">
+        <div class="welcome-box">
+          <h2>Wybierz książkę</h2>
+          <p>Po kliknięciu książki czytnik otworzy się na całą szerokość ekranu.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <section class="reader-fullscreen hidden" id="readerScreen">
+    <div class="reader-topbar">
+      <div class="reader-book-meta">
+        <strong id="readerBookTitle">Tytuł książki</strong>
+        <span id="readerBookAuthor">Autor</span>
+      </div>
+
+      <div class="reader-topbar-actions">
+        <button id="toggleLibraryBtn" class="btn secondary">Biblioteka</button>
+        <button id="toggleTocBtn" class="btn secondary">Spis treści</button>
+        <button id="fullscreenBtn" class="btn secondary">Pełny ekran</button>
+        <button id="closeReaderBtn" class="btn secondary">Zamknij</button>
+      </div>
+    </div>
+
+    <div class="reader-settings-bar">
+      <label>
+        Widok stron
+        <select id="spreadSelect">
+          <option value="auto">Auto</option>
+          <option value="none">1 strona</option>
+          <option value="always">2 strony</option>
+        </select>
+      </label>
+
+      <label>
+        Motyw
+        <select id="themeSelect">
+          <option value="light">Jasny</option>
+          <option value="sepia">Sepia</option>
+          <option value="dark">Ciemny</option>
+        </select>
+      </label>
+
+      <label>
+        Rozmiar czcionki
+        <select id="fontSizeSelect">
+          <option value="90">90%</option>
+          <option value="100" selected>100%</option>
+          <option value="110">110%</option>
+          <option value="120">120%</option>
+          <option value="130">130%</option>
+          <option value="150">150%</option>
+        </select>
+      </label>
+
+      <label>
+        Margines
+        <select id="marginSelect">
+          <option value="10">Mały</option>
+          <option value="20" selected>Średni</option>
+          <option value="40">Duży</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="reader-progress-bar">
+      <span id="readingProgressText">Postęp: 0%</span>
+    </div>
+
+    <div class="reader-body">
+      <aside id="readerLibraryPanel" class="overlay-panel hidden">
+        <div class="overlay-panel-inner">
+          <div class="section-head">
+            <h3>Biblioteka</h3>
+            <button id="hideLibraryBtn" class="btn secondary">Ukryj</button>
+          </div>
+          <div id="readerBooksList" class="books-list"></div>
+        </div>
+      </aside>
+
+      <aside id="tocPanel" class="overlay-panel hidden">
+        <div class="overlay-panel-inner">
+          <div class="section-head">
+            <h3>Spis treści</h3>
+            <button id="hideTocBtn" class="btn secondary">Ukryj</button>
+          </div>
+          <div id="tocList" class="toc-list"></div>
+        </div>
+      </aside>
+
+      <div class="reader-view-shell">
+        <button id="prevPageBtn" class="page-nav page-nav-left" title="Poprzednia strona">‹</button>
+        <div id="viewer" class="viewer fullscreen-viewer"></div>
+        <button id="nextPageBtn" class="page-nav page-nav-right" title="Następna strona">›</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/utils.js"></script>
+  <script src="js/reader.js"></script>
+</body>
+</html>
