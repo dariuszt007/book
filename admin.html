@@ -1,1 +1,220 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel administratora EPUB Pro</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Panel administratora EPUB Pro</h1>
+      <p class="subtitle">Tworzenie, edycja i eksport książek EPUB</p>
+    </div>
+    <nav class="topbar-actions">
+      <a class="btn secondary" href="index.html">Panel czytelnika</a>
+    </nav>
+  </header>
 
+  <main class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="panel">
+        <h2>Nawigacja</h2>
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="library">Biblioteka</button>
+          <button class="tab-btn" data-tab="import">Import EPUB</button>
+          <button class="tab-btn" data-tab="create">Nowa książka</button>
+          <button class="tab-btn" data-tab="metadata">Metadane</button>
+          <button class="tab-btn" data-tab="chapters">Rozdziały</button>
+          <button class="tab-btn" data-tab="media">Okładka i ilustracje</button>
+          <button class="tab-btn" data-tab="export">Eksport</button>
+        </div>
+
+        <div class="sidebar-actions">
+          <button id="saveDraftBtn" class="btn">Zapisz roboczo</button>
+          <button id="loadDraftBtn" class="btn secondary">Wczytaj robocze</button>
+          <button id="clearDraftBtn" class="btn secondary danger">Usuń robocze</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="admin-main">
+      <section class="panel tab-panel active" id="tab-library">
+        <div class="section-head">
+          <h2>Książki z repo</h2>
+          <button id="refreshRepoBtn" class="btn">Odśwież listę</button>
+        </div>
+        <div id="adminBooksList" class="books-list"></div>
+      </section>
+
+      <section class="panel tab-panel" id="tab-import">
+        <h2>Import EPUB</h2>
+        <input id="epubUpload" type="file" accept=".epub" />
+        <p class="hint">
+          Wczytaj istniejący plik EPUB, edytuj go i pobierz nową wersję.
+        </p>
+      </section>
+
+      <section class="panel tab-panel" id="tab-create">
+        <h2>Utwórz nową książkę</h2>
+        <div class="form-grid">
+          <input id="newBookTitle" type="text" placeholder="Tytuł książki" />
+          <input id="newBookAuthor" type="text" placeholder="Autor" />
+          <input id="newBookLang" type="text" placeholder="Język, np. pl" value="pl" />
+          <input id="newBookCategory" type="text" placeholder="Kategoria" />
+        </div>
+
+        <textarea id="newBookDescription" placeholder="Opis książki"></textarea>
+
+        <div class="form-grid">
+          <input id="newBookChapterTitle" type="text" placeholder="Tytuł pierwszego rozdziału" value="Rozdział 1" />
+        </div>
+
+        <div class="editor-card">
+          <div class="editor-toolbar" id="newBookEditorToolbar">
+            <button type="button" data-command="bold"><strong>B</strong></button>
+            <button type="button" data-command="italic"><em>I</em></button>
+            <button type="button" data-command="underline"><u>U</u></button>
+            <button type="button" data-command="formatBlock" data-value="h1">H1</button>
+            <button type="button" data-command="formatBlock" data-value="h2">H2</button>
+            <button type="button" data-command="insertUnorderedList">Lista</button>
+            <button type="button" data-command="insertOrderedList">1.</button>
+            <button type="button" data-command="formatBlock" data-value="p">Akapit</button>
+          </div>
+          <div id="newBookChapterEditor" class="wysiwyg-editor" contenteditable="true">
+            <h1>Rozdział 1</h1>
+            <p>Tu wpisz treść książki.</p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="createBookBtn" class="btn">Utwórz książkę</button>
+        </div>
+      </section>
+
+      <section class="panel tab-panel" id="tab-metadata">
+        <h2>Metadane książki</h2>
+        <div id="editorEmptyStateMeta" class="empty-state">
+          Najpierw zaimportuj EPUB albo utwórz nową książkę.
+        </div>
+
+        <div id="metadataArea" class="hidden">
+          <div class="form-grid">
+            <input id="metaTitle" type="text" placeholder="Tytuł" />
+            <input id="metaAuthor" type="text" placeholder="Autor" />
+            <input id="metaLang" type="text" placeholder="Język" />
+            <input id="metaCategory" type="text" placeholder="Kategoria" />
+          </div>
+
+          <div class="form-grid">
+            <input id="metaFileName" type="text" placeholder="Nazwa pliku EPUB bez .epub" />
+            <input id="metaBookId" type="text" placeholder="ID książki do library.json" />
+            <input id="coverRepoPath" type="text" placeholder="Ścieżka okładki w repo, np. covers/moj-plik.jpg" />
+          </div>
+
+          <textarea id="metaDescription" placeholder="Opis książki"></textarea>
+        </div>
+      </section>
+
+      <section class="panel tab-panel" id="tab-chapters">
+        <h2>Rozdziały i edycja treści</h2>
+        <div id="editorEmptyStateChapters" class="empty-state">
+          Najpierw zaimportuj EPUB albo utwórz nową książkę.
+        </div>
+
+        <div id="chaptersArea" class="hidden">
+          <div class="chapter-layout">
+            <div>
+              <div class="section-head">
+                <h3>Lista rozdziałów</h3>
+                <button id="addChapterBtn" class="btn secondary">Dodaj rozdział</button>
+              </div>
+              <div id="chaptersList" class="chapters-list"></div>
+            </div>
+
+            <div>
+              <label class="label">Wybierz rozdział</label>
+              <select id="chapterSelect"></select>
+
+              <label class="label">Tytuł rozdziału</label>
+              <input id="chapterTitle" type="text" placeholder="Tytuł rozdziału" />
+
+              <div class="editor-card">
+                <div class="editor-toolbar" id="chapterEditorToolbar">
+                  <button type="button" data-command="bold"><strong>B</strong></button>
+                  <button type="button" data-command="italic"><em>I</em></button>
+                  <button type="button" data-command="underline"><u>U</u></button>
+                  <button type="button" data-command="formatBlock" data-value="h1">H1</button>
+                  <button type="button" data-command="formatBlock" data-value="h2">H2</button>
+                  <button type="button" data-command="formatBlock" data-value="p">Akapit</button>
+                  <button type="button" data-command="insertUnorderedList">Lista</button>
+                  <button type="button" data-command="insertOrderedList">1.</button>
+                </div>
+                <div id="chapterEditor" class="wysiwyg-editor" contenteditable="true"></div>
+              </div>
+
+              <textarea id="chapterContentRaw" class="code-output hidden"></textarea>
+
+              <div class="toolbar">
+                <button id="saveChapterBtn" class="btn">Zapisz rozdział</button>
+                <button id="toggleHtmlBtn" class="btn secondary">Pokaż HTML</button>
+                <button id="insertIllustrationBtn" class="btn secondary">Wstaw ilustrację</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel tab-panel" id="tab-media">
+        <h2>Okładka i ilustracje</h2>
+        <div id="editorEmptyStateMedia" class="empty-state">
+          Najpierw zaimportuj EPUB albo utwórz nową książkę.
+        </div>
+
+        <div id="mediaArea" class="hidden">
+          <div class="cover-grid">
+            <div>
+              <label class="label">Okładka</label>
+              <input id="coverUpload" type="file" accept="image/*" />
+              <img id="coverPreview" class="cover-preview" alt="Podgląd okładki" />
+            </div>
+
+            <div>
+              <label class="label">Ilustracja do rozdziałów</label>
+              <input id="illustrationUpload" type="file" accept="image/*" />
+              <img id="illustrationPreview" class="cover-preview" alt="Podgląd ilustracji" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel tab-panel" id="tab-export">
+        <h2>Eksport i wpis do biblioteki</h2>
+        <div id="editorEmptyStateExport" class="empty-state">
+          Najpierw zaimportuj EPUB albo utwórz nową książkę.
+        </div>
+
+        <div id="exportArea" class="hidden">
+          <div class="toolbar">
+            <button id="exportEpubBtn" class="btn success">Pobierz EPUB</button>
+            <button id="generateLibraryEntryBtn" class="btn">Generuj wpis do library.json</button>
+            <button id="copyLibraryEntryBtn" class="btn secondary">Kopiuj wpis</button>
+          </div>
+
+          <textarea
+            id="libraryEntryOutput"
+            class="code-output"
+            readonly
+            placeholder="Tu pojawi się gotowy wpis JSON do wklejenia do data/library.json"
+          ></textarea>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
