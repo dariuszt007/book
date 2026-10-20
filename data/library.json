@@ -9,6 +9,16 @@
   "epub": "books/bocian.epub",
   "cover": "covers/bocian.jpg",
   "description": ""
+};
+    {
+  "id": "cz-owiek-z-blizna",
+  "title": "Człowiek z blizną",
+  "author": "Arthur Conan Doyle",
+  "language": "pl",
+  "category": "",
+  "epub": "books/doyle-czlowiek-z-blizna.epub",
+  "cover": "covers/cz-owiek-z-blizna.jpg",
+  "description": ""
 }
   ]
 }
