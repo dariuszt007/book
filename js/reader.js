@@ -97,10 +97,17 @@ async function openBook(bookMeta) {
   tocPanel.classList.add("hidden");
   readerLibraryPanel.classList.add("hidden");
   tocList.innerHTML = "";
-  viewer.innerHTML = "";
+  viewer.innerHTML = `
+    <div style="padding:20px;color:#111827;background:#fff;height:100%;">
+      <p>Ładowanie książki...</p>
+    </div>
+  `;
 
   try {
+    console.log("Opening EPUB:", bookMeta.epub);
+
     currentBook = ePub(bookMeta.epub);
+
     rendition = currentBook.renderTo("viewer", {
       width: "100%",
       height: "100%",
@@ -112,9 +119,11 @@ async function openBook(bookMeta) {
     applyReaderSettings();
 
     const savedLocation = localStorage.getItem(getLocationStorageKey(bookMeta.id));
+
     await rendition.display(savedLocation || undefined);
 
     currentBook.ready.then(() => {
+      console.log("EPUB ready");
       loadTableOfContents();
       setTimeout(() => rendition?.resize(), 100);
     });
@@ -127,14 +136,18 @@ async function openBook(bookMeta) {
       const percentage = location?.start?.percentage || 0;
       readingProgressText.textContent = `Postęp: ${Math.round(percentage * 100)}%`;
     });
+
   } catch (error) {
+    console.error("EPUB open error:", error);
+
     viewer.innerHTML = `
-      <div style="padding:24px;color:#111827;">
+      <div style="padding:24px;color:#111827;background:#fff;height:100%;overflow:auto;">
         <h2>Nie udało się otworzyć książki</h2>
-        <p>Sprawdź ścieżkę EPUB w <code>data/library.json</code> i nazwę pliku.</p>
+        <p><strong>Plik:</strong> ${bookMeta.epub}</p>
+        <p><strong>Błąd:</strong> ${error?.message || error}</p>
+        <p>Sprawdź ścieżkę EPUB w <code>data/library.json</code>, nazwę pliku i poprawność samego EPUB.</p>
       </div>
     `;
-    console.error(error);
   }
 }
 
