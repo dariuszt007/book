@@ -205,7 +205,69 @@ function applyReaderSettings() {
 }
 
 
-TUTAJ WPISZ
+async function rebuildRendition() {
+  if (!currentBookMeta) return;
+
+  const savedLocation =
+    rendition?.currentLocation()?.start?.cfi ||
+    localStorage.getItem(getLocationStorageKey(currentBookMeta.id)) ||
+    undefined;
+
+  viewer.innerHTML = `
+    <div style="padding:24px;color:#111827;background:#fff;height:100%;overflow:auto;">
+      <p>Odświeżanie widoku książki...</p>
+    </div>
+  `;
+
+  try {
+    const response = await fetch(`${currentBookMeta.epub}?v=${Date.now()}`);
+    if (!response.ok) {
+      throw new Error(`Nie udało się pobrać EPUB. HTTP ${response.status}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    currentBook = ePub(arrayBuffer);
+
+    viewer.innerHTML = "";
+
+    rendition = currentBook.renderTo("viewer", {
+      width: viewer.clientWidth || window.innerWidth,
+      height: viewer.clientHeight || 600,
+      spread: currentSpread,
+      flow: "paginated",
+      manager: "default"
+    });
+
+    applyReaderSettings();
+    await rendition.display(savedLocation);
+
+    rendition.on("relocated", (location) => {
+      if (location?.start?.cfi) {
+        localStorage.setItem(getLocationStorageKey(currentBookMeta.id), location.start.cfi);
+      }
+
+      const percentage = location?.start?.percentage || 0;
+      readingProgressText.textContent = `Postęp: ${Math.round(percentage * 100)}%`;
+    });
+
+    currentBook.ready.then(() => {
+      loadTableOfContents();
+      setTimeout(() => rendition?.resize(), 100);
+    });
+
+  } catch (error) {
+    console.error("EPUB rebuild error:", error);
+
+    viewer.innerHTML = `
+      <div style="padding:24px;color:#111827;background:#fff;height:100%;overflow:auto;">
+        <h2>Nie udało się odświeżyć książki</h2>
+        <p><strong>Błąd:</strong> ${error?.message || error}</p>
+      </div>
+    `;
+  }
+}
+
 
 
 async function loadTableOfContents() {
