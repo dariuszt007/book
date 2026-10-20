@@ -445,3 +445,156 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+.library-page {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.welcome-box {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reader-fullscreen {
+  position: fixed;
+  inset: 0;
+  background: #0b1220;
+  z-index: 1000;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+}
+
+.reader-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.reader-book-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reader-book-meta span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.reader-topbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reader-settings-bar {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  background: #111827;
+  border-bottom: 1px solid var(--line);
+}
+
+.reader-settings-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+  min-width: 140px;
+}
+
+.reader-progress-bar {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+  background: #0f172a;
+}
+
+.reader-body {
+  position: relative;
+  min-height: 0;
+  display: flex;
+}
+
+.reader-view-shell {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 72px 1fr 72px;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.fullscreen-viewer {
+  width: 100%;
+  height: calc(100vh - 180px);
+  background: white;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.page-nav {
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 48px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.page-nav:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.overlay-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 340px;
+  background: rgba(2, 6, 23, 0.98);
+  border-right: 1px solid var(--line);
+  z-index: 20;
+  overflow: auto;
+}
+
+.overlay-panel-inner {
+  padding: 18px;
+}
+
+#tocPanel {
+  right: 0;
+  left: auto;
+  border-right: none;
+  border-left: 1px solid var(--line);
+}
+
+@media (max-width: 980px) {
+  .library-page {
+    grid-template-columns: 1fr;
+  }
+
+  .reader-view-shell {
+    grid-template-columns: 56px 1fr 56px;
+  }
+
+  .overlay-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .reader-settings-bar {
+    flex-direction: column;
+  }
+}
