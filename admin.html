@@ -1,1 +1,497 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>Panel administratora - EPUB PRO</title>
 
+  <link rel="stylesheet" href="admin.css?v=20261020-2" />
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+
+  <!-- DOCX import -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+</head>
+<body class="admin-body">
+  <header class="admin-topbar">
+    <div class="admin-topbar__left">
+      <p class="admin-eyebrow">EPUB PRO</p>
+      <h1>Panel administratora</h1>
+      <p class="admin-topbar__text">
+        Tworzenie nowych książek, import plików, edycja książek z repo i eksport do wielu formatów.
+      </p>
+    </div>
+
+    <div class="admin-topbar__right">
+      <a class="admin-btn admin-btn--ghost" href="index.html">Panel czytelnika</a>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <section class="admin-start panel-box">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">START</p>
+          <h2>Od czego chcesz zacząć?</h2>
+          <p class="section-text">
+            Wybierz jedną ścieżkę. Dzięki temu od razu będzie jasne, czy tworzysz nową książkę,
+            importujesz gotowy plik, czy otwierasz książkę już obecną w repo.
+          </p>
+        </div>
+      </div>
+
+      <div class="start-actions-grid">
+        <button id="startNewBookBtn" class="start-card start-card--primary" type="button">
+          <span class="start-card__icon">＋</span>
+          <span class="start-card__title">Nowa książka</span>
+          <span class="start-card__desc">
+            Zacznij pusty projekt i od razu przejdź do metadanych oraz rozdziałów.
+          </span>
+        </button>
+
+        <label class="start-card" for="importBookInput">
+          <span class="start-card__icon">⇪</span>
+          <span class="start-card__title">Import pliku</span>
+          <span class="start-card__desc">
+            Zaimportuj istniejący EPUB, DOCX, ODT, HTML albo TXT i przejdź do dalszej edycji.
+          </span>
+          <input id="importBookInput" type="file" accept=".epub,.docx,.odt,.html,.txt" hidden />
+        </label>
+
+        <button id="openRepoSectionBtn" class="start-card" type="button">
+          <span class="start-card__icon">☰</span>
+          <span class="start-card__title">Edytuj z repo</span>
+          <span class="start-card__desc">
+            Otwórz książkę, która już jest w repo, i popraw ją albo skopiuj jako nowy projekt.
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <aside class="workspace-sidebar panel-box">
+        <div class="sidebar-header">
+          <p class="section-kicker">PROJEKT</p>
+          <h2>Praca krok po kroku</h2>
+          <p class="section-text">
+            Najpierw wybierz sposób startu, a potem przechodź przez kolejne etapy edycji.
+          </p>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Sekcje panelu administratora">
+          <button class="sidebar-nav__btn active" data-target="dashboardSection" type="button">
+            Start projektu
+          </button>
+          <button class="sidebar-nav__btn" data-target="repoSection" type="button">
+            Książki z repo
+          </button>
+          <button class="sidebar-nav__btn" data-target="metadataSection" type="button">
+            Metadane
+          </button>
+          <button class="sidebar-nav__btn" data-target="editorSection" type="button">
+            Treść i rozdziały
+          </button>
+          <button class="sidebar-nav__btn" data-target="mediaSection" type="button">
+            Okładka i media
+          </button>
+          <button class="sidebar-nav__btn" data-target="exportSection" type="button">
+            Eksport
+          </button>
+        </nav>
+
+        <div class="sidebar-sticky-actions">
+          <button id="saveDraftBtn" class="admin-btn admin-btn--primary" type="button">
+            Zapisz roboczo
+          </button>
+          <button id="loadDraftBtn" class="admin-btn admin-btn--secondary" type="button">
+            Wczytaj robocze
+          </button>
+          <button id="clearDraftBtn" class="admin-btn admin-btn--secondary" type="button">
+            Usuń robocze
+          </button>
+        </div>
+      </aside>
+
+      <section class="workspace-main">
+        <section id="dashboardSection" class="panel-box admin-section active-section">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">START PROJEKTU</p>
+              <h2>Co chcesz zrobić?</h2>
+              <p class="section-text">
+                Tutaj masz szybkie wyjaśnienie, który przycisk wybrać i co stanie się dalej.
+              </p>
+            </div>
+          </div>
+
+          <div class="info-cards-grid">
+            <article class="info-card">
+              <h3>Nowa książka od zera</h3>
+              <p>
+                Kliknij <strong>Nowa książka</strong>, potem przejdź do
+                <strong>Metadane</strong> i <strong>Treść i rozdziały</strong>.
+                Dodaj tytuł, autora, rozdziały i pisz treść jak w edytorze dokumentów.
+              </p>
+            </article>
+
+            <article class="info-card">
+              <h3>Import istniejącego pliku</h3>
+              <p>
+                Kliknij <strong>Import pliku</strong> i wybierz EPUB, DOCX, ODT, HTML albo TXT.
+                Po wczytaniu projekt otworzy się w edytorze, gdzie poprawisz treść, metadane i okładkę.
+              </p>
+            </article>
+
+            <article class="info-card">
+              <h3>Edycja książki z repo</h3>
+              <p>
+                Kliknij <strong>Edytuj z repo</strong>, wybierz książkę z listy i otwórz ją do edycji
+                albo skopiuj jako nowy projekt roboczy.
+              </p>
+            </article>
+          </div>
+
+          <div class="project-summary-box">
+            <div class="project-summary-box__header">
+              <h3>Aktualny projekt</h3>
+              <p>Tu zawsze widzisz, nad czym obecnie pracujesz.</p>
+            </div>
+
+            <div class="project-summary-grid">
+              <div class="summary-item">
+                <span class="summary-item__label">Tytuł</span>
+                <strong id="currentProjectTitle">Brak projektu</strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-item__label">Autor</span>
+                <strong id="currentProjectAuthor">—</strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-item__label">Źródło</span>
+                <strong id="currentProjectSource">Nowy projekt / import / repo</strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-item__label">Liczba rozdziałów</span>
+                <strong id="currentProjectChapterCount">0</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="repoSection" class="panel-box admin-section">
+          <div class="section-heading section-heading--split">
+            <div>
+              <p class="section-kicker">REPO</p>
+              <h2>Książki dostępne w repo</h2>
+              <p class="section-text">
+                Wybierz książkę, aby ją edytować, albo utwórz kopię i pracuj na duplikacie.
+              </p>
+            </div>
+
+            <div class="section-heading__actions">
+              <button id="refreshRepoBtn" class="admin-btn admin-btn--secondary" type="button">
+                Odśwież listę
+              </button>
+            </div>
+          </div>
+
+          <div class="repo-toolbar">
+            <input
+              id="repoSearchInput"
+              class="admin-input"
+              type="text"
+              placeholder="Szukaj po tytule, autorze lub kategorii..."
+            />
+          </div>
+
+          <div id="repoBooksList" class="repo-books-list">
+            <div class="empty-state">
+              Lista książek z repo pojawi się tutaj.
+            </div>
+          </div>
+        </section>
+
+        <section id="metadataSection" class="panel-box admin-section">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">METADANE</p>
+              <h2>Informacje o książce</h2>
+              <p class="section-text">
+                Uzupełnij podstawowe dane projektu. To one trafią potem do eksportu EPUB, DOCX, ODT i wpisu bibliotecznego.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <label class="field">
+              <span>Tytuł książki</span>
+              <input id="bookTitleInput" class="admin-input" type="text" placeholder="Np. Moja książka" />
+            </label>
+
+            <label class="field">
+              <span>Autor</span>
+              <input id="bookAuthorInput" class="admin-input" type="text" placeholder="Imię i nazwisko autora" />
+            </label>
+
+            <label class="field">
+              <span>Kategoria</span>
+              <input id="bookCategoryInput" class="admin-input" type="text" placeholder="Np. Powieść, Fantasy, Esej" />
+            </label>
+
+            <label class="field">
+              <span>Język</span>
+              <input id="bookLanguageInput" class="admin-input" type="text" value="pl" placeholder="pl" />
+            </label>
+
+            <label class="field">
+              <span>Id / slug projektu</span>
+              <input id="bookSlugInput" class="admin-input" type="text" placeholder="np. moja-ksiazka" />
+            </label>
+
+            <label class="field">
+              <span>Nazwa pliku eksportu</span>
+              <input id="bookFileNameInput" class="admin-input" type="text" placeholder="np. moja-ksiazka.epub" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Opis książki</span>
+            <textarea
+              id="bookDescriptionInput"
+              class="admin-textarea"
+              rows="8"
+              placeholder="Krótki opis książki, notka wydawnicza albo opis projektu"
+            ></textarea>
+          </label>
+        </section>
+
+        <section id="editorSection" class="panel-box admin-section">
+          <div class="section-heading section-heading--split">
+            <div>
+              <p class="section-kicker">TREŚĆ I ROZDZIAŁY</p>
+              <h2>Edytor książki</h2>
+              <p class="section-text">
+                Pisz i edytuj treść w dużym polu roboczym. Po lewej wybierasz rozdziały, po prawej edytujesz treść.
+              </p>
+            </div>
+
+            <div class="section-heading__actions">
+              <button id="addChapterBtn" class="admin-btn admin-btn--primary" type="button">
+                Dodaj rozdział
+              </button>
+              <button id="moveChapterUpBtn" class="admin-btn admin-btn--secondary" type="button">
+                Przesuń w górę
+              </button>
+              <button id="moveChapterDownBtn" class="admin-btn admin-btn--secondary" type="button">
+                Przesuń w dół
+              </button>
+              <button id="duplicateChapterBtn" class="admin-btn admin-btn--secondary" type="button">
+                Duplikuj
+              </button>
+              <button id="deleteChapterBtn" class="admin-btn admin-btn--danger" type="button">
+                Usuń
+              </button>
+            </div>
+          </div>
+
+          <div class="editor-layout">
+            <aside class="chapter-panel">
+              <div class="chapter-panel__head">
+                <h3>Rozdziały</h3>
+                <p>Wybierz rozdział albo dodaj nowy.</p>
+              </div>
+
+              <div id="chaptersList" class="chapters-list">
+                <div class="empty-state">Nie ma jeszcze rozdziałów.</div>
+              </div>
+            </aside>
+
+            <div class="editor-panel">
+              <div class="chapter-meta-row">
+                <input
+                  id="chapterTitleInput"
+                  class="admin-input"
+                  type="text"
+                  placeholder="Tytuł rozdziału"
+                />
+                <input
+                  id="chapterFileInput"
+                  class="admin-input"
+                  type="text"
+                  placeholder="np. chapter-1.xhtml"
+                />
+              </div>
+
+              <div class="word-editor-box">
+                <div class="word-editor-toolbar" id="wordEditorToolbar">
+                  <button type="button" data-cmd="bold"><strong>B</strong></button>
+                  <button type="button" data-cmd="italic"><em>I</em></button>
+                  <button type="button" data-cmd="underline"><u>U</u></button>
+                  <button type="button" data-cmd="formatBlock" data-value="h1">H1</button>
+                  <button type="button" data-cmd="formatBlock" data-value="h2">H2</button>
+                  <button type="button" data-cmd="formatBlock" data-value="h3">H3</button>
+                  <button type="button" data-cmd="formatBlock" data-value="h4">H4</button>
+                  <button type="button" data-cmd="formatBlock" data-value="p">P</button>
+                  <button type="button" data-cmd="insertUnorderedList">• Lista</button>
+                  <button type="button" data-cmd="insertOrderedList">1. Lista</button>
+                  <button type="button" data-cmd="formatBlock" data-value="blockquote">Cytat</button>
+                  <button type="button" data-cmd="justifyLeft">Lewo</button>
+                  <button type="button" data-cmd="justifyCenter">Środek</button>
+                  <button type="button" data-cmd="justifyRight">Prawo</button>
+                  <button type="button" data-cmd="justifyFull">Wyjustuj</button>
+                </div>
+
+                <div
+                  id="chapterEditor"
+                  class="word-editor-surface"
+                  contenteditable="true"
+                  spellcheck="true"
+                >
+                  <p>Zacznij pisać treść rozdziału tutaj...</p>
+                </div>
+              </div>
+
+              <div class="code-panel">
+                <label class="field">
+                  <span>HTML aktualnego rozdziału</span>
+                  <textarea
+                    id="chapterHtmlInput"
+                    class="admin-textarea admin-textarea--code"
+                    rows="12"
+                    placeholder="Tutaj może pojawić się kod HTML rozdziału"
+                  ></textarea>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="mediaSection" class="panel-box admin-section">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">MEDIA</p>
+              <h2>Okładka i ilustracje</h2>
+              <p class="section-text">
+                Dodaj okładkę książki i ilustracje, które chcesz wykorzystać w środku publikacji.
+              </p>
+            </div>
+          </div>
+
+          <div class="media-grid">
+            <div class="media-card">
+              <h3>Okładka</h3>
+              <input id="coverInput" class="admin-input" type="file" accept="image/*" />
+              <div class="cover-preview-wrap">
+                <img id="coverPreview" class="cover-preview" alt="Podgląd okładki" />
+              </div>
+            </div>
+
+            <div class="media-card">
+              <h3>Ilustracje</h3>
+              <input id="imagesInput" class="admin-input" type="file" accept="image/*" multiple />
+              <div id="imagesList" class="images-list">
+                <div class="empty-state">Brak ilustracji.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="exportSection" class="panel-box admin-section">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">EKSPORT</p>
+              <h2>Eksport i zapis projektu</h2>
+              <p class="section-text">
+                Eksportuj książkę do EPUB, Word, ODT, HTML lub TXT. Możesz też pobrać backup projektu albo gotowy wpis do pliku <code>library.json</code>.
+              </p>
+            </div>
+          </div>
+
+          <div class="export-grid">
+            <article class="export-card">
+              <h3>Zapis projektu</h3>
+              <p>Zapisz bieżący stan roboczy lokalnie, aby wrócić do pracy później.</p>
+              <button id="saveDraftMainBtn" class="admin-btn admin-btn--primary" type="button">
+                Zapisz roboczo
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Eksport EPUB</h3>
+              <p>Standardowy plik EPUB do czytników i bibliotek cyfrowych.</p>
+              <button id="exportEpubBtn" class="admin-btn admin-btn--primary" type="button">
+                Eksportuj EPUB
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Eksport Word / Pages</h3>
+              <p>Eksport do DOCX, który otworzysz w Microsoft Word i Apple Pages.</p>
+              <button id="exportDocxBtn" class="admin-btn admin-btn--secondary" type="button">
+                Eksportuj DOCX
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Eksport ODT</h3>
+              <p>Format zgodny z LibreOffice i innymi edytorami dokumentów.</p>
+              <button id="exportOdtBtn" class="admin-btn admin-btn--secondary" type="button">
+                Eksportuj ODT
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Eksport HTML</h3>
+              <p>Całą książkę jako jeden dokument HTML.</p>
+              <button id="exportHtmlBtn" class="admin-btn admin-btn--secondary" type="button">
+                Eksportuj HTML
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Eksport TXT</h3>
+              <p>Prosty tekst bez zaawansowanego formatowania.</p>
+              <button id="exportTxtBtn" class="admin-btn admin-btn--secondary" type="button">
+                Eksportuj TXT
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Backup projektu JSON</h3>
+              <p>Pełna kopia projektu roboczego do dalszej edycji i odzyskiwania.</p>
+              <button id="exportJsonBtn" class="admin-btn admin-btn--secondary" type="button">
+                Eksportuj JSON projektu
+              </button>
+            </article>
+
+            <article class="export-card">
+              <h3>Wpis do library.json</h3>
+              <p>Wygeneruj gotowy rekord książki do wklejenia do tablicy <code>books</code> w <code>data/library.json</code>.</p>
+              <button id="exportLibraryEntryBtn" class="admin-btn admin-btn--secondary" type="button">
+                Eksportuj wpis do library.json
+              </button>
+            </article>
+          </div>
+
+          <label class="field">
+            <span>Log operacji</span>
+            <textarea
+              id="adminLogOutput"
+              class="admin-textarea admin-textarea--code"
+              rows="10"
+              placeholder="Tu będą pojawiać się komunikaty o imporcie, zapisie i eksporcie"
+            ></textarea>
+          </label>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/utils.js?v=20261020-2"></script>
+  <script src="js/admin.js?v=20261020-2"></script>
+</body>
+</html>
