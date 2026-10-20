@@ -1,14 +1,14 @@
 {
   "books": [
-    {
+{
   "id": "bocian-stas-gotuje",
   "title": "Bocian Staś Gotuje",
   "author": "Dariusz Aleksander",
   "language": "pl",
-  "category": "dla dzieci, przygodowa, kulinarna",
+  "category": "",
   "epub": "books/bocian-stas-gotuje.epub",
   "cover": "covers/bocian-stas-gotuje.jpg",
-  "description": "To historia o bocianie Stasiu — serdecznym, pomysłowym i niezwykłym gospodarzu, który najbardziej na świecie lubi gotować. Dla Stasia kuchnia nie jest tylko miejscem przygotowywania posiłków. To serce domu, w którym pachnie ciepłym chlebem, świeżym koperkiem, rosołem, pierogami i świątecznymi potrawami. To miejsce, w którym każdy znajdzie coś pysznego, dobre słowo i chwilę spokoju."
+  "description": ""
 }
   ]
 }
