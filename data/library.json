@@ -1,14 +1,12 @@
-{
-  "books": [
-    {
+[
+  {
   "id": "bocian",
   "title": "Bocian",
-  "author": "Dariusz",
+  "author": "Nieznany autor",
   "language": "pl",
-  "category": "Kulinarna, przygodowa, dla dzieci",
-  "epub": "books/bocian.epub",
-  "cover": "covers/bocian.jpg",
-  "description": "O gotowaniu"
+  "category": "inne",
+  "epub": "books/bocian.ePub",
+  "cover": "assets/no-cover.svg",
+  "description": "Dodana ręcznie książka EPUB."
 }
-  ]
-}
+]
