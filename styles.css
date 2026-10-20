@@ -739,3 +739,24 @@ select {
     font-size: 42px;
   }
 }
+
+.drawer-settings-controls {
+  grid-template-columns: 1fr;
+  padding: 0 0 16px;
+}
+
+.drawer-theme-grid {
+  grid-template-columns: repeat(2, 1fr);
+  padding: 16px 0 0;
+  background: transparent;
+  border-top: none;
+}
+
+.drawer-theme-grid .theme-tile {
+  min-height: 110px;
+  border-radius: 18px;
+}
+
+.drawer-theme-grid .theme-aa {
+  font-size: 38px;
+}
