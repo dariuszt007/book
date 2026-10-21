@@ -55,10 +55,9 @@ async function loadLibrary() {
   try {
     const response = await fetch(`data/library.json?v=${Date.now()}`);
     const data = await response.json();
-    libraryBooks = data.books || [];
-
-    populateCategoryFilter(libraryBooks);
-    applyFiltersAndRender();
+libraryBooks = data.books || [];
+populateCategoryFilter(libraryBooks);
+filterAndRenderBooks();
   } catch (error) {
     booksList.innerHTML = "<p>Nie udało się wczytać biblioteki.</p>";
     readerBooksList.innerHTML = "<p>Nie udało się wczytać biblioteki.</p>";
@@ -93,17 +92,18 @@ function populateCategoryFilter(books) {
   }
 }
 
-function applyFiltersAndRender() {
-  const query = (searchBooksInput?.value || "").trim().toLowerCase();
+function filterAndRenderBooks() {
+  const q = (searchBooksInput?.value || "").trim().toLowerCase();
   const selectedCategory = (categoryFilterSelect?.value || "").trim().toLowerCase();
 
   const filtered = libraryBooks.filter(book => {
     const matchesSearch = [book.title, book.author, book.category, book.description || ""]
       .join(" ")
       .toLowerCase()
-      .includes(query);
+      .includes(q);
 
-    const matchesCategory = !selectedCategory ||
+    const matchesCategory =
+      !selectedCategory ||
       (book.category || "").trim().toLowerCase() === selectedCategory;
 
     return matchesSearch && matchesCategory;
@@ -374,24 +374,16 @@ async function loadTableOfContents() {
   const toc = currentBook.navigation.toc || [];
   tocList.innerHTML = "";
 
-  if (!toc.length) {
-    tocList.innerHTML = "<p>Brak spisu treści.</p>";
-    return;
-  }
-
   toc.forEach(item => {
-    const entry = document.createElement("button");
-    entry.className = "toc-item";
-    entry.textContent = item.label || "Rozdział";
-    entry.addEventListener("click", async () => {
-      try {
-        await rendition?.display(item.href);
-        menuDrawer.classList.add("hidden");
-      } catch (error) {
-        console.error(error);
-      }
+    const node = document.createElement("div");
+    node.className = "toc-item";
+    node.textContent = item.label;
+    node.addEventListener("click", async () => {
+      await rendition.display(item.href);
+      tocPanel.classList.add("hidden");
+      menuDrawer.classList.add("hidden");
     });
-    tocList.appendChild(entry);
+    tocList.appendChild(node);
   });
 }
 
@@ -425,11 +417,11 @@ function getLocationStorageKey(bookId) {
 refreshLibraryBtn?.addEventListener("click", loadLibrary);
 
 searchBooksInput?.addEventListener("input", () => {
-  applyFiltersAndRender();
+  filterAndRenderBooks();
 });
 
 categoryFilterSelect?.addEventListener("change", () => {
-  applyFiltersAndRender();
+  filterAndRenderBooks();
 });
 
 prevPageBtn?.addEventListener("click", (e) => {
