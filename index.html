@@ -48,7 +48,40 @@
 
   </main>-->
 
-  
+  <main class="library-page" id="libraryPage">
+  <section class="panel library-panel">
+    <div class="section-head">
+      <h2>Biblioteka</h2>
+      <button id="refreshLibraryBtn" class="btn">Odśwież</button>
+    </div>
+
+    <div class="library-toolbar">
+      <input id="searchBooksInput" type="text" placeholder="Szukaj książki..." />
+
+      <select id="categoryFilterSelect">
+        <option value="">Wszystkie kategorie</option>
+      </select>
+
+      <select id="authorFilterSelect">
+        <option value="">Wszyscy autorzy</option>
+      </select>
+
+      <select id="sortBooksSelect">
+        <option value="title-asc">Tytuł A-Z</option>
+        <option value="title-desc">Tytuł Z-A</option>
+        <option value="author-asc">Autor A-Z</option>
+        <option value="author-desc">Autor Z-A</option>
+      </select>
+    </div>
+
+    <div class="welcome-box compact-welcome">
+      <p>Po kliknięciu książka otworzy się w pełnoekranowym czytniku EPUB.</p>
+    </div>
+
+    <div id="booksList" class="books-list books-grid"></div>
+  </section>
+</main>
+
 
   <section class="reader-screen hidden" id="readerScreen">
     <div class="reader-overlay-top" id="readerTopBar">
