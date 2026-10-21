@@ -69,14 +69,11 @@ body {
 /* COMMON */
 
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px;
-    width: 100vw;
-  min-height: 100vh;
-  box-sizing: border-box;
+background: var(--panel);
+border: 1px solid var(--line);
+border-radius: var(--radius);
+box-shadow: var(--shadow);
+padding: 18px;
 }
 
 .section-head {
