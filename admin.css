@@ -369,29 +369,13 @@ code {
   margin-bottom: 12px;
 }
 
-.repo-toolbar--grid-v636 {
+.repo-toolbar--grid-v635 {
   display: grid;
   gap: 10px;
 }
 
-.repo-sort-field,
-.repo-category-field {
+.repo-sort-field {
   max-width: 260px;
-}
-
-.repo-toolbar-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.repo-results-count {
-  color: var(--admin-text-soft);
-  font-size: 13px;
-  font-weight: 700;
 }
 
 .repo-books-list {
@@ -978,8 +962,8 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .repo-toolbar--grid-v636 {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 220px 220px;
+  .repo-toolbar--grid-v635 {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 240px;
     align-items: end;
   }
 
