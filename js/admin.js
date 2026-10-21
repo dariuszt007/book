@@ -1,4 +1,4 @@
-const ADMIN_DRAFT_KEY = "epub_pro_admin_draft_v636_full";
+const ADMIN_DRAFT_KEY = "epub_pro_admin_draft_v635";
 const ADD_CHAPTER_SELECT_VALUE = "__add_new_chapter__";
 
 const SCREENS = {
@@ -34,10 +34,7 @@ const openRepoBtn = document.getElementById("openRepoBtn");
 const refreshRepoBtn = document.getElementById("refreshRepoBtn");
 const repoSearchInput = document.getElementById("repoSearchInput");
 const repoAuthorFilterInput = document.getElementById("repoAuthorFilterInput");
-const repoCategoryFilterSelect = document.getElementById("repoCategoryFilterSelect");
 const repoSortSelect = document.getElementById("repoSortSelect");
-const repoResultsCount = document.getElementById("repoResultsCount");
-const clearRepoFiltersBtn = document.getElementById("clearRepoFiltersBtn");
 const repoBooksList = document.getElementById("repoBooksList");
 const backFromRepoBtn = document.getElementById("backFromRepoBtn");
 
@@ -111,6 +108,8 @@ let activeImageBlock = null;
 let resizeState = null;
 
 let project = createEmptyProject();
+
+/* ---------- core ---------- */
 
 function createEmptyProject() {
   return {
@@ -209,34 +208,11 @@ function compareStringsLocale(a, b) {
   return String(a || "").localeCompare(String(b || ""), "pl", { sensitivity: "base" });
 }
 
-function buildRepoCategoryOptions(books) {
-  if (!repoCategoryFilterSelect) return;
-
-  const currentValue = repoCategoryFilterSelect.value || "";
-  const categories = Array.from(
-    new Set(
-      books
-        .map((book) => String(book.category || "").trim())
-        .filter(Boolean)
-    )
-  ).sort((a, b) => compareStringsLocale(a, b));
-
-  repoCategoryFilterSelect.innerHTML = `<option value="">Wszystkie kategorie</option>`;
-
-  categories.forEach((category) => {
-    const option = document.createElement("option");
-    option.value = category;
-    option.textContent = category;
-    repoCategoryFilterSelect.appendChild(option);
-  });
-
-  repoCategoryFilterSelect.value = categories.includes(currentValue) ? currentValue : "";
-}
+/* ---------- repo pipeline ---------- */
 
 function getRepoFilteredAndSortedBooks() {
   const textQuery = repoSearchInput?.value?.trim().toLowerCase() || "";
   const authorQuery = repoAuthorFilterInput?.value?.trim().toLowerCase() || "";
-  const categoryQuery = repoCategoryFilterSelect?.value?.trim() || "";
   const sortMode = repoSortSelect?.value || "title-asc";
 
   let result = [...repoBooks];
@@ -253,12 +229,6 @@ function getRepoFilteredAndSortedBooks() {
   if (authorQuery) {
     result = result.filter((book) =>
       String(book.author || "").toLowerCase().includes(authorQuery)
-    );
-  }
-
-  if (categoryQuery) {
-    result = result.filter((book) =>
-      String(book.category || "").trim() === categoryQuery
     );
   }
 
@@ -292,24 +262,11 @@ function getRepoFilteredAndSortedBooks() {
   return result;
 }
 
-function updateRepoResultsCount(count) {
-  if (!repoResultsCount) return;
-  repoResultsCount.textContent = `Wyniki: ${count}`;
-}
-
 function rerenderRepoBooks() {
-  const result = getRepoFilteredAndSortedBooks();
-  renderRepoBooks(result);
-  updateRepoResultsCount(result.length);
+  renderRepoBooks(getRepoFilteredAndSortedBooks());
 }
 
-function clearRepoFilters() {
-  if (repoSearchInput) repoSearchInput.value = "";
-  if (repoAuthorFilterInput) repoAuthorFilterInput.value = "";
-  if (repoCategoryFilterSelect) repoCategoryFilterSelect.value = "";
-  if (repoSortSelect) repoSortSelect.value = "title-asc";
-  rerenderRepoBooks();
-}
+/* ---------- layout ---------- */
 
 function updateTopbarOffset() {
   const topbar = document.querySelector(".admin-topbar");
@@ -354,6 +311,8 @@ function showScreen(screenKey, options = {}) {
     }, 120);
   }
 }
+
+/* ---------- summary/meta ---------- */
 
 function updateSummaryNodeList(nodeList, value, fallback = "—") {
   nodeList.forEach((node) => {
@@ -408,6 +367,8 @@ function autoFillFileName() {
 
   saveMetaFromInputs();
 }
+
+/* ---------- chapters ---------- */
 
 function getCurrentChapter() {
   if (currentChapterIndex < 0) return null;
@@ -617,6 +578,8 @@ function createAndSwitchToNewChapter() {
   }
 }
 
+/* ---------- io ---------- */
+
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -717,14 +680,7 @@ async function copyLibraryEntry() {
   }
 }
 
-function dataUrlToUint8Array(dataUrl) {
-  const base64 = dataUrl.split(",")[1] || "";
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
+/* ---------- export helpers ---------- */
 
 function parseDataUrl(dataUrl) {
   const match = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/);
@@ -1016,7 +972,7 @@ function exportHtml() {
   logMessage("Wyeksportowano HTML.");
 }
 
-/* EPUB */
+/* ---------- EPUB ---------- */
 
 function buildContainerXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1042,6 +998,15 @@ function getImageMimeType(ext) {
     case "jpg":
     default: return "image/jpeg";
   }
+}
+
+function dataUrlToUint8Array(dataUrl) {
+  const base64 = dataUrl.split(",")[1] || "";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 function buildOpf(extraImageItems = []) {
@@ -1256,7 +1221,7 @@ async function exportEpub() {
   }
 }
 
-/* ODT */
+/* ---------- ODT ---------- */
 
 function buildOdtManifest(imageEntries, coverEntry) {
   const imageLines = imageEntries.map((img) =>
@@ -1644,7 +1609,7 @@ async function exportOdt() {
   }
 }
 
-/* DOCX */
+/* ---------- DOCX ---------- */
 
 function xmlEscapeText(text) {
   return escapeXml(text).replace(/\n/g, "</w:t><w:br/><w:t>");
@@ -2117,7 +2082,7 @@ async function exportDocx() {
   }
 }
 
-/* import helpers */
+/* ---------- import helpers ---------- */
 
 function parseXml(xmlText) {
   return new DOMParser().parseFromString(xmlText, "application/xml");
@@ -2613,6 +2578,8 @@ function findTocLabel(toc, href) {
   return "";
 }
 
+/* ---------- repo ---------- */
+
 async function loadRepoBooks() {
   repoBooksList.innerHTML = `<div class="empty-state">Ładowanie książek z repo...</div>`;
 
@@ -2622,8 +2589,6 @@ async function loadRepoBooks() {
 
     const data = await response.json();
     repoBooks = Array.isArray(data.books) ? data.books : [];
-
-    buildRepoCategoryOptions(repoBooks);
     rerenderRepoBooks();
     logMessage(`Wczytano listę książek z repo: ${repoBooks.length}.`);
   } catch (error) {
@@ -2748,6 +2713,672 @@ function deleteRepoBook(book) {
   alert("Usuwanie z repo wymaga jeszcze obsługi zapisu na serwerze lub ręcznego usunięcia pliku i wpisu z library.json.");
 }
 
+/* ---------- image blocks ---------- */
+
+function createImageBlock(src, alt = "") {
+  const block = document.createElement("div");
+  block.className = "editor-image-block align-center";
+  block.contentEditable = "false";
+  block.style.width = "320px";
+
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = alt;
+  block.appendChild(img);
+
+  ["nw", "ne", "sw", "se"].forEach((pos) => {
+    const handle = document.createElement("span");
+    handle.className = `resize-handle ${pos}`;
+    handle.dataset.handle = pos;
+    block.appendChild(handle);
+  });
+
+  return block;
+}
+
+function convertStandaloneImagesToBlocks(root) {
+  const images = Array.from(root.querySelectorAll("img"));
+  images.forEach((img) => {
+    if (img.closest(".editor-image-block")) return;
+
+    const block = createImageBlock(img.getAttribute("src") || "", img.getAttribute("alt") || "");
+    const styleWidthMatch = (img.getAttribute("style") || "").match(/width\s*:\s*([^;]+)/i);
+    if (styleWidthMatch && styleWidthMatch[1]) {
+      block.style.width = styleWidthMatch[1].trim();
+    }
+
+    img.parentNode.insertBefore(block, img);
+    img.remove();
+  });
+}
+
+function upgradeImagesToEditableBlocks() {
+  convertStandaloneImagesToBlocks(bookEditor);
+}
+
+function clearSelectedImageBlock() {
+  bookEditor.querySelectorAll(".editor-image-block.selected").forEach((el) => {
+    el.classList.remove("selected");
+  });
+  activeImageBlock = null;
+}
+
+function selectImageBlock(block) {
+  clearSelectedImageBlock();
+  if (!block) return;
+  block.classList.add("selected");
+  activeImageBlock = block;
+
+  const width = parseInt(block.getBoundingClientRect().width, 10);
+  if (width && imageWidthInput) {
+    imageWidthInput.value = String(width);
+  }
+}
+
+function pointerPosition(event) {
+  if (event.touches && event.touches[0]) {
+    return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+  }
+  return { x: event.clientX, y: event.clientY };
+}
+
+function startResize(block, handle, event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  selectImageBlock(block);
+
+  const rect = block.getBoundingClientRect();
+  const pointer = pointerPosition(event);
+
+  resizeState = {
+    block,
+    handle,
+    startX: pointer.x,
+    startY: pointer.y,
+    startWidth: rect.width
+  };
+
+  document.addEventListener("mousemove", onResizeMove);
+  document.addEventListener("mouseup", stopResize);
+  document.addEventListener("touchmove", onResizeMove, { passive: false });
+  document.addEventListener("touchend", stopResize);
+}
+
+function onResizeMove(event) {
+  if (!resizeState) return;
+  event.preventDefault();
+
+  const pointer = pointerPosition(event);
+  const deltaX = pointer.x - resizeState.startX;
+  const deltaY = pointer.y - resizeState.startY;
+
+  let nextWidth = resizeState.startWidth;
+
+  if (resizeState.handle === "se" || resizeState.handle === "ne") {
+    nextWidth = resizeState.startWidth + deltaX;
+  } else {
+    nextWidth = resizeState.startWidth - deltaX;
+  }
+
+  if (Math.abs(deltaY) > Math.abs(deltaX) * 0.6) {
+    const signed = (resizeState.handle === "sw" || resizeState.handle === "se") ? deltaY : -deltaY;
+    nextWidth = resizeState.startWidth + signed;
+  }
+
+  nextWidth = Math.max(80, nextWidth);
+  const editorRect = bookEditor.getBoundingClientRect();
+  nextWidth = Math.min(nextWidth, editorRect.width - 30);
+
+  resizeState.block.style.width = `${Math.round(nextWidth)}px`;
+  if (imageWidthInput) imageWidthInput.value = String(Math.round(nextWidth));
+  syncCurrentChapterFromEditor();
+}
+
+function stopResize() {
+  if (!resizeState) return;
+  resizeState = null;
+
+  document.removeEventListener("mousemove", onResizeMove);
+  document.removeEventListener("mouseup", stopResize);
+  document.removeEventListener("touchmove", onResizeMove);
+  document.removeEventListener("touchend", stopResize);
+
+  syncCurrentChapterFromEditor();
+}
+
+function bindImageBlockEvents() {
+  bookEditor.addEventListener("click", (event) => {
+    const block = event.target.closest(".editor-image-block");
+    if (block) {
+      selectImageBlock(block);
+      return;
+    }
+    clearSelectedImageBlock();
+  });
+
+  bookEditor.addEventListener("mousedown", (event) => {
+    const handle = event.target.closest(".resize-handle");
+    if (!handle) return;
+    const block = handle.closest(".editor-image-block");
+    if (!block) return;
+    startResize(block, handle.dataset.handle, event);
+  });
+
+  bookEditor.addEventListener("touchstart", (event) => {
+    const handle = event.target.closest(".resize-handle");
+    if (!handle) return;
+    const block = handle.closest(".editor-image-block");
+    if (!block) return;
+    startResize(block, handle.dataset.handle, event);
+  }, { passive: false });
+
+  document.addEventListener("click", (event) => {
+    if (!bookEditor.contains(event.target)) {
+      clearSelectedImageBlock();
+    }
+  });
+}
+
+function setActiveImageAlignment(mode) {
+  if (!activeImageBlock) {
+    alert("Najpierw zaznacz obraz.");
+    return;
+  }
+
+  activeImageBlock.classList.remove("align-left", "align-center", "align-right");
+
+  if (mode === "left") activeImageBlock.classList.add("align-left");
+  if (mode === "center") activeImageBlock.classList.add("align-center");
+  if (mode === "right") activeImageBlock.classList.add("align-right");
+
+  syncCurrentChapterFromEditor();
+}
+
+function applyImageWidth() {
+  if (!activeImageBlock) {
+    alert("Najpierw zaznacz obraz.");
+    return;
+  }
+
+  const value = parseInt(imageWidthInput.value, 10);
+  if (!value || value < 40) {
+    alert("Podaj poprawną szerokość obrazu w px.");
+    return;
+  }
+
+  const editorRect = bookEditor.getBoundingClientRect();
+  const finalWidth = Math.min(value, Math.max(80, Math.floor(editorRect.width - 30)));
+  activeImageBlock.style.width = `${finalWidth}px`;
+  imageWidthInput.value = String(finalWidth);
+  syncCurrentChapterFromEditor();
+}
+
+function deleteSelectedImage() {
+  if (!activeImageBlock) {
+    alert("Najpierw zaznacz obraz.");
+    return;
+  }
+  activeImageBlock.remove();
+  clearSelectedImageBlock();
+  syncCurrentChapterFromEditor();
+  logMessage("Usunięto zaznaczony obraz z treści.");
+}
+
+/* ---------- editor ---------- */
+
+function normalizeEditorMarkup() {
+  if (!bookEditor.innerHTML.trim()) bookEditor.innerHTML = "<p></p>";
+}
+
+function syncCurrentChapterFromEditor() {
+  if (suppressEditorSync) return;
+  const chapter = getCurrentChapter();
+  if (!chapter) return;
+
+  normalizeEditorMarkup();
+  chapter.html = getEditorHtml();
+  if (chapterHtmlInput) chapterHtmlInput.value = chapter.html;
+}
+
+function execEditorCommand(command, value = null) {
+  bookEditor.focus();
+  restoreSelection();
+  document.execCommand(command, false, value);
+  rememberSelection();
+  syncCurrentChapterFromEditor();
+}
+
+function setBlock(tagName) {
+  execEditorCommand("formatBlock", tagName);
+}
+
+async function handleInlineImageInsert(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    const imageBlock = createImageBlock(dataUrl, file.name);
+
+    bookEditor.focus();
+    restoreSelection();
+
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.collapse(true);
+
+      const blockWrap = document.createElement("div");
+      blockWrap.appendChild(imageBlock);
+
+      const spacer = document.createElement("p");
+      spacer.innerHTML = "<br>";
+
+      range.insertNode(spacer);
+      range.insertNode(blockWrap);
+
+      const newRange = document.createRange();
+      newRange.setStartAfter(spacer);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      rememberSelection();
+    } else {
+      const blockWrap = document.createElement("div");
+      blockWrap.appendChild(imageBlock);
+      bookEditor.appendChild(blockWrap);
+
+      const spacer = document.createElement("p");
+      spacer.innerHTML = "<br>";
+      bookEditor.appendChild(spacer);
+      rememberSelection();
+    }
+
+    selectImageBlock(imageBlock);
+    syncCurrentChapterFromEditor();
+    logMessage(`Wstawiono obraz do treści: ${file.name}.`);
+  } catch (error) {
+    console.error(error);
+    alert("Nie udało się wstawić obrazu.");
+    logMessage(`Błąd wstawiania obrazu do treści: ${error?.message || error}`);
+  } finally {
+    event.target.value = "";
+  }
+}
+
+function closeAllDropdowns() {
+  dropdownToggles.forEach((toggle) => {
+    const targetId = toggle.dataset.dropdown;
+    const menu = document.getElementById(targetId);
+    if (menu) menu.hidden = true;
+  });
+}
+
+function toggleDropdown(targetId) {
+  dropdownToggles.forEach((toggle) => {
+    const id = toggle.dataset.dropdown;
+    const menu = document.getElementById(id);
+    if (!menu) return;
+    if (id === targetId) menu.hidden = !menu.hidden;
+    else menu.hidden = true;
+  });
+}
+
+function bindEditorDropdowns() {
+  dropdownToggles.forEach((toggle) => {
+    toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleDropdown(toggle.dataset.dropdown);
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".toolbar-dropdown")) {
+      closeAllDropdowns();
+    }
+  });
+}
+
+function bindEditorToolbar() {
+  editorToolbar.addEventListener("click", (event) => {
+    const button = event.target.closest(".editor-tool-btn");
+    if (!button) return;
+
+    const cmd = button.dataset.cmd;
+    const block = button.dataset.block;
+    const value = button.dataset.value || null;
+
+    if (button.id === "insertImageBtn") {
+      closeAllDropdowns();
+      inlineImageInput.click();
+      return;
+    }
+
+    if (button.id === "deleteImageBtn") {
+      deleteSelectedImage();
+      closeAllDropdowns();
+      return;
+    }
+
+    if (button.id === "alignImageLeftBtn") {
+      setActiveImageAlignment("left");
+      closeAllDropdowns();
+      return;
+    }
+
+    if (button.id === "alignImageCenterBtn") {
+      setActiveImageAlignment("center");
+      closeAllDropdowns();
+      return;
+    }
+
+    if (button.id === "alignImageRightBtn") {
+      setActiveImageAlignment("right");
+      closeAllDropdowns();
+      return;
+    }
+
+    if (button.id === "applyImageWidthBtn") {
+      applyImageWidth();
+      closeAllDropdowns();
+      return;
+    }
+
+    if (block) {
+      setBlock(block);
+      closeAllDropdowns();
+      return;
+    }
+
+    if (cmd) {
+      execEditorCommand(cmd, value);
+      closeAllDropdowns();
+    }
+  });
+}
+
+/* ---------- drag ---------- */
+
+function createTouchPlaceholder() {
+  const placeholder = document.createElement("div");
+  placeholder.className = "chapter-item";
+  placeholder.style.opacity = "0.35";
+  placeholder.style.borderStyle = "dashed";
+  placeholder.style.minHeight = "62px";
+  placeholder.innerHTML = "<strong>Upuść tutaj</strong>";
+  return placeholder;
+}
+
+function getChapterItemElements() {
+  return Array.from(chaptersList.querySelectorAll(".chapter-item[data-index]"));
+}
+
+function setupDesktopDrag(item, index) {
+  item.setAttribute("draggable", "true");
+
+  item.addEventListener("dragstart", (event) => {
+    draggedChapterIndex = index;
+    item.style.opacity = "0.45";
+    event.dataTransfer.effectAllowed = "move";
+    try { event.dataTransfer.setData("text/plain", String(index)); } catch {}
+  });
+
+  item.addEventListener("dragend", () => {
+    draggedChapterIndex = null;
+    item.style.opacity = "";
+    getChapterItemElements().forEach((el) => {
+      el.style.borderTop = "";
+      el.style.borderBottom = "";
+    });
+  });
+
+  item.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    const rect = item.getBoundingClientRect();
+    const before = event.clientY < rect.top + rect.height / 2;
+    item.style.borderTop = before ? "2px solid #60a5fa" : "";
+    item.style.borderBottom = before ? "" : "2px solid #60a5fa";
+  });
+
+  item.addEventListener("dragleave", () => {
+    item.style.borderTop = "";
+    item.style.borderBottom = "";
+  });
+
+  item.addEventListener("drop", (event) => {
+    event.preventDefault();
+    item.style.borderTop = "";
+    item.style.borderBottom = "";
+
+    const fromIndex = draggedChapterIndex;
+    if (fromIndex === null) return;
+
+    const rect = item.getBoundingClientRect();
+    const before = event.clientY < rect.top + rect.height / 2;
+    let toIndex = index;
+
+    if (!before && fromIndex < index) toIndex = index;
+    else if (before && fromIndex < index) toIndex = index - 1;
+    else if (!before && fromIndex > index) toIndex = index + 1;
+    else toIndex = index;
+
+    if (toIndex < 0) toIndex = 0;
+    if (toIndex >= project.chapters.length) toIndex = project.chapters.length - 1;
+
+    moveChapter(fromIndex, toIndex);
+  });
+}
+
+function setupTouchDrag(item, index) {
+  let startY = 0;
+  let startX = 0;
+
+  item.addEventListener("touchstart", (event) => {
+    if (event.target.closest("button")) return;
+
+    const touch = event.touches[0];
+    startY = touch.clientY;
+    startX = touch.clientX;
+
+    touchDragIndex = index;
+    touchDragElement = item;
+    touchDragStarted = false;
+
+    if (!touchPlaceholder) touchPlaceholder = createTouchPlaceholder();
+  }, { passive: true });
+
+  item.addEventListener("touchmove", (event) => {
+    if (touchDragIndex === null || !touchDragElement) return;
+
+    const touch = event.touches[0];
+    const diffY = Math.abs(touch.clientY - startY);
+    const diffX = Math.abs(touch.clientX - startX);
+
+    if (!touchDragStarted) {
+      if (diffY < 8 && diffX < 8) return;
+      touchDragStarted = true;
+      touchDragElement.style.opacity = "0.55";
+      touchDragElement.style.transform = "scale(0.985)";
+    }
+
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const overItem = target?.closest?.(".chapter-item[data-index]");
+
+    if (overItem && overItem !== touchDragElement && overItem.parentNode === chaptersList) {
+      const rect = overItem.getBoundingClientRect();
+      const before = touch.clientY < rect.top + rect.height / 2;
+      if (before) chaptersList.insertBefore(touchPlaceholder, overItem);
+      else chaptersList.insertBefore(touchPlaceholder, overItem.nextSibling);
+    }
+
+    event.preventDefault();
+  }, { passive: false });
+
+  item.addEventListener("touchend", () => {
+    if (touchDragIndex === null || !touchDragElement) {
+      cleanupTouchDrag();
+      return;
+    }
+
+    if (!touchDragStarted) {
+      cleanupTouchDrag();
+      return;
+    }
+
+    let fromIndex = touchDragIndex;
+    let toIndex = fromIndex;
+
+    if (touchPlaceholder && touchPlaceholder.parentNode === chaptersList) {
+      const children = Array.from(chaptersList.children).filter((child) =>
+        child.classList.contains("chapter-item")
+      );
+      toIndex = children.indexOf(touchPlaceholder);
+      if (toIndex === -1) toIndex = fromIndex;
+      if (toIndex > fromIndex) toIndex -= 1;
+    }
+
+    cleanupTouchDrag();
+    moveChapter(fromIndex, toIndex);
+  });
+
+  item.addEventListener("touchcancel", cleanupTouchDrag);
+}
+
+function cleanupTouchDrag() {
+  if (touchDragElement) {
+    touchDragElement.style.opacity = "";
+    touchDragElement.style.transform = "";
+  }
+
+  if (touchPlaceholder?.parentNode) {
+    touchPlaceholder.parentNode.removeChild(touchPlaceholder);
+  }
+
+  touchDragIndex = null;
+  touchDragElement = null;
+  touchPlaceholder = null;
+  touchDragStarted = false;
+}
+
+function moveChapter(fromIndex, toIndex) {
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= project.chapters.length ||
+    toIndex >= project.chapters.length
+  ) return;
+
+  persistCurrentChapter();
+
+  const [moved] = project.chapters.splice(fromIndex, 1);
+  project.chapters.splice(toIndex, 0, moved);
+
+  if (currentChapterIndex === fromIndex) {
+    currentChapterIndex = toIndex;
+  } else if (fromIndex < currentChapterIndex && toIndex >= currentChapterIndex) {
+    currentChapterIndex -= 1;
+  } else if (fromIndex > currentChapterIndex && toIndex <= currentChapterIndex) {
+    currentChapterIndex += 1;
+  }
+
+  renderChapters();
+  renderCurrentChapter();
+  updateSummary();
+  logMessage("Zmieniono kolejność rozdziałów.");
+}
+
+/* ---------- misc ---------- */
+
+async function handleCoverUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    project.cover = { name: file.name, dataUrl };
+    project.meta.coverFileName = file.name;
+    renderCover();
+    fillMetaInputs();
+    logMessage(`Wczytano okładkę: ${file.name}.`);
+  } catch (error) {
+    console.error(error);
+    alert("Nie udało się wczytać okładki.");
+    logMessage(`Błąd wczytywania okładki: ${error?.message || error}`);
+  }
+}
+
+function addChapter() {
+  createAndSwitchToNewChapter();
+}
+
+function duplicateCurrentChapter() {
+  const source = getCurrentChapter();
+  if (!source) {
+    alert("Wybierz rozdział do skopiowania.");
+    return;
+  }
+
+  persistCurrentChapter();
+
+  const copy = {
+    id: `chapter-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    title: `${source.title} (kopia)`,
+    file: (source.file || "chapter.xhtml").replace(/(\.xhtml|\.html)?$/i, "-copy.xhtml"),
+    html: source.html
+  };
+
+  project.chapters.splice(currentChapterIndex + 1, 0, copy);
+  currentChapterIndex += 1;
+
+  renderChapters();
+  renderCurrentChapter();
+  updateSummary();
+  logMessage(`Zduplikowano rozdział: ${source.title}.`);
+}
+
+function deleteCurrentChapter() {
+  const chapter = getCurrentChapter();
+  if (!chapter) {
+    alert("Nie ma rozdziału do usunięcia.");
+    return;
+  }
+
+  const title = chapter.title || "ten rozdział";
+  const confirmed = confirm(`Czy na pewno chcesz usunąć rozdział "${title}"?`);
+  if (!confirmed) return;
+
+  project.chapters.splice(currentChapterIndex, 1);
+
+  if (project.chapters.length === 0) currentChapterIndex = -1;
+  else if (currentChapterIndex >= project.chapters.length) currentChapterIndex = project.chapters.length - 1;
+
+  renderChapters();
+  renderCurrentChapter();
+  updateSummary();
+  logMessage(`Usunięto rozdział: ${title}.`);
+}
+
+function goBackFromContent() {
+  if (lastStartAction === "repo") showScreen("repo");
+  else showScreen("start");
+}
+
+function finishAndReturnToStart() {
+  showScreen("start");
+  logMessage("Powrócono do ekranu startowego.");
+}
+
+function goToChaptersScreen() {
+  persistCurrentChapter();
+  renderChapters();
+  renderCurrentChapter();
+  showScreen("chapters");
+}
+
+/* ---------- bindings ---------- */
+
 function bindEvents() {
   topbarMenuBtn?.addEventListener("click", (event) => {
     event.stopPropagation();
@@ -2812,9 +3443,7 @@ function bindEvents() {
   refreshRepoBtn?.addEventListener("click", loadRepoBooks);
   repoSearchInput?.addEventListener("input", rerenderRepoBooks);
   repoAuthorFilterInput?.addEventListener("input", rerenderRepoBooks);
-  repoCategoryFilterSelect?.addEventListener("change", rerenderRepoBooks);
   repoSortSelect?.addEventListener("change", rerenderRepoBooks);
-  clearRepoFiltersBtn?.addEventListener("click", clearRepoFilters);
 
   chapterSelect?.addEventListener("change", () => {
     const value = chapterSelect.value;
@@ -2911,11 +3540,11 @@ function bindEvents() {
   backToMetadataBtn?.addEventListener("click", () => showScreen("metadata"));
   finishToStartBtn?.addEventListener("click", finishAndReturnToStart);
 
-  exportEpubBtn?.addEventListener("click", exportEpub);
-  exportOdtBtn?.addEventListener("click", exportOdt);
-  exportDocxBtn?.addEventListener("click", exportDocx);
-  exportHtmlBtn?.addEventListener("click", exportHtml);
-  copyLibraryEntryBtn?.addEventListener("click", copyLibraryEntry);
+  if (exportEpubBtn) exportEpubBtn.addEventListener("click", exportEpub);
+  if (exportOdtBtn) exportOdtBtn.onclick = () => exportOdt();
+  if (exportDocxBtn) exportDocxBtn.onclick = () => exportDocx();
+  if (exportHtmlBtn) exportHtmlBtn.addEventListener("click", exportHtml);
+  if (copyLibraryEntryBtn) copyLibraryEntryBtn.addEventListener("click", copyLibraryEntry);
 
   window.addEventListener("resize", updateTopbarOffset);
   window.addEventListener("orientationchange", updateTopbarOffset);
