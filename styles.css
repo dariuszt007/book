@@ -167,10 +167,15 @@ select {
   justify-content: center;
 }
 
+
 .books-list {
   display: grid;
   gap: 12px;
   margin-top: 14px;
+  width: 100%;
+  min-height: 100vh;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  box-sizing: border-box;
 }
 
 .book-card {
