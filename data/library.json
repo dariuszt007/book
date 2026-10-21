@@ -11,14 +11,14 @@
   "description": ""
 },
 
-    {
-  "id": "cz-owiek-z-blizna",
-  "title": "Człowiek z blizną",
+{
+  "id": "pies-baskerville-ow",
+  "title": "Pies Baskerville'ów",
   "author": "Arthur Conan Doyle",
   "category": "",
   "description": "",
-  "cover": "assets/covers/doyle-czlowiek-z-blizna.jpeg",
-  "epub": "books/doyle-czlowiek-z-blizna.epub"
+  "cover": "assets/covers/pies-baskervilleow.jpg",
+  "epub": "books/pies-baskervilleow.epub"
 }
   ]
 }
