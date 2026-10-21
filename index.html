@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>EPUB PRO</title>
+  <link rel="stylesheet" href="style.css?v=20261021-636-fix" />
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand-block">
+        <div class="brand-kicker">EPUB PRO</div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <a
+        href="admin.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="admin-mini-btn"
+        aria-label="Otwórz panel administratora w nowej karcie"
+        title="Panel administratora"
+      >☰</a>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section id="libraryView" class="library-view">
+      <div class="library-toolbar">
+        <input
+          id="searchInput"
+          type="text"
+          class="search-input"
+          placeholder="Szukaj po tytule, autorze lub kategorii..."
+        />
+
+        <div class="filters-row">
+          <select id="categoryFilterSelect" class="toolbar-select">
+            <option value="">Wszystkie kategorie</option>
+          </select>
+
+          <select id="sortSelect" class="toolbar-select">
+            <option value="title-asc">Tytuł A-Z</option>
+            <option value="title-desc">Tytuł Z-A</option>
+            <option value="author-asc">Autor A-Z</option>
+            <option value="author-desc">Autor Z-A</option>
+            <option value="category-asc">Kategoria A-Z</option>
+            <option value="category-desc">Kategoria Z-A</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="booksGrid" class="books-grid">
+        <div class="empty-state">Ładowanie biblioteki...</div>
+      </div>
+    </section>
+
+    <section id="readerView" class="reader-view hidden">
+      <div class="reader-toolbar">
+        <button id="backBtn" class="reader-btn" type="button">← Powrót</button>
+        <div class="reader-nav">
+          <button id="prevBtn" class="reader-btn" type="button">◀</button>
+          <button id="nextBtn" class="reader-btn" type="button">▶</button>
+        </div>
+      </div>
+
+      <div id="viewer" class="viewer"></div>
+    </section>
+  </main>
+
+  <script src="js/reader.js?v=20261021-636-fix"></script>
+</body>
+</html>
