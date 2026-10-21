@@ -21,11 +21,11 @@
   "epub": "books/doyle-czlowiek-z-blizna.epub"
 },
 
-{
+    {
   "id": "pies-baskerville-ow",
   "title": "Pies Baskerville'ów",
   "author": "Arthur Conan Doyle",
-  "category": "",
+  "category": "Powieść",
   "description": "",
   "cover": "covers/pies-baskervilleow.jpg",
   "epub": "books/pies-baskervilleow.epub"
