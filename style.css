@@ -148,7 +148,14 @@ select {
 
 /* LIBRARY */
 
-TUTAJ
+.library-page {
+  padding: 20px;
+}
+
+.library-panel {
+  width: 100%;
+}
+
 
 .welcome-box {
   min-height: 320px;
