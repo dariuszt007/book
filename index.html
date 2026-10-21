@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>EPUB PRO Reader v6.3.6</title>
+
+  <link rel="stylesheet" href="style.css?v=20261021-636" />
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+</head>
+<body class="reader-body">
+  <header class="reader-topbar">
+    <div class="reader-topbar__brand">
+      <p class="reader-eyebrow">EPUB PRO</p>
+      <h1>Biblioteka</h1>
+    </div>
+
+    <a
+      class="reader-admin-icon"
+      href="admin.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Otwórz panel administratora w nowej karcie"
+      title="Panel administratora"
+    >
+      ☰
+    </a>
+  </header>
+
+  <main class="reader-main">
+    <section id="libraryScreen" class="reader-library panel-box active-view">
+      <div class="reader-filters">
+        <input
+          id="readerSearchInput"
+          class="reader-input"
+          type="text"
+          placeholder="Szukaj po tytule, autorze lub kategorii..."
+        />
+
+        <label class="reader-field">
+          <span>Kategoria</span>
+          <select id="readerCategoryFilterSelect" class="reader-input">
+            <option value="">Wszystkie kategorie</option>
+          </select>
+        </label>
+
+        <label class="reader-field">
+          <span>Sortowanie</span>
+          <select id="readerSortSelect" class="reader-input">
+            <option value="title-asc">Tytuł A-Z</option>
+            <option value="title-desc">Tytuł Z-A</option>
+            <option value="author-asc">Autor A-Z</option>
+            <option value="author-desc">Autor Z-A</option>
+            <option value="category-asc">Kategoria A-Z</option>
+            <option value="category-desc">Kategoria Z-A</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="reader-filters-meta">
+        <div id="readerResultsCount" class="reader-results-count">Wyniki: 0</div>
+        <button id="readerClearFiltersBtn" class="reader-clear-btn" type="button">Wyczyść filtry</button>
+      </div>
+
+      <div id="readerBooksList" class="reader-books-list">
+        <div class="reader-empty">Ładowanie biblioteki...</div>
+      </div>
+    </section>
+
+    <section id="epubReaderScreen" class="epub-reader-screen">
+      <div class="epub-reader-topbar">
+        <button id="closeReaderBtn" class="epub-reader-btn" type="button">← Biblioteka</button>
+        <div class="epub-reader-title-wrap">
+          <strong id="readerBookTitle">Czytnik EPUB</strong>
+          <span id="readerBookMeta">—</span>
+        </div>
+        <div class="epub-reader-nav">
+          <button id="prevPageBtn" class="epub-reader-btn" type="button">◀</button>
+          <button id="nextPageBtn" class="epub-reader-btn" type="button">▶</button>
+        </div>
+      </div>
+
+      <div id="epubReaderContainer" class="epub-reader-container"></div>
+    </section>
+  </main>
+
+  <script src="js/reader.js?v=20261021-636"></script>
+</body>
+</html>
