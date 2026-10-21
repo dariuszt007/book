@@ -29,7 +29,16 @@
   "description": "",
   "cover": "covers/pies-baskervilleow.jpg",
   "epub": "books/pies-baskervilleow.epub"
-}
+},
     
+{
+  "id": "test",
+  "title": "Test",
+  "author": "Test",
+  "category": "Test",
+  "description": "",
+  "cover": "covers/IMG_4267.jpeg",
+  "epub": "books/t.epub"
+}
   ]
 }
