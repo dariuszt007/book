@@ -71,7 +71,108 @@ async function loadLibrary() {
   }
 }
 
-TUTAJ
+function populateCategoryFilter(books) {
+  if (!categoryFilterSelect) return;
+
+  const currentValue = categoryFilterSelect.value;
+
+  const categories = [...new Set(
+    books
+      .map(book => (book.category || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "pl", { sensitivity: "base" }));
+
+  categoryFilterSelect.innerHTML = `<option value="">Wszystkie kategorie</option>`;
+
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilterSelect.appendChild(option);
+  });
+
+  if (categories.includes(currentValue)) {
+    categoryFilterSelect.value = currentValue;
+  } else {
+    categoryFilterSelect.value = "";
+  }
+}
+
+function populateAuthorFilter(books) {
+  if (!authorFilterSelect) return;
+
+  const currentValue = authorFilterSelect.value;
+
+  const authors = [...new Set(
+    books
+      .map(book => (book.author || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "pl", { sensitivity: "base" }));
+
+  authorFilterSelect.innerHTML = `<option value="">Wszyscy autorzy</option>`;
+
+  authors.forEach(author => {
+    const option = document.createElement("option");
+    option.value = author;
+    option.textContent = author;
+    authorFilterSelect.appendChild(option);
+  });
+
+  if (authors.includes(currentValue)) {
+    authorFilterSelect.value = currentValue;
+  } else {
+    authorFilterSelect.value = "";
+  }
+}
+
+function filterAndRenderBooks() {
+  const q = (searchBooksInput?.value || "").trim().toLowerCase();
+  const selectedCategory = (categoryFilterSelect?.value || "").trim().toLowerCase();
+  const selectedAuthor = (authorFilterSelect?.value || "").trim().toLowerCase();
+  const sortValue = sortBooksSelect?.value || "title-asc";
+
+  const filtered = libraryBooks.filter(book => {
+    const matchesSearch = [book.title, book.author, book.category, book.description || ""]
+      .join(" ")
+      .toLowerCase()
+      .includes(q);
+
+    const matchesCategory =
+      !selectedCategory ||
+      (book.category || "").trim().toLowerCase() === selectedCategory;
+
+    const matchesAuthor =
+      !selectedAuthor ||
+      (book.author || "").trim().toLowerCase() === selectedAuthor;
+
+    return matchesSearch && matchesCategory && matchesAuthor;
+  });
+
+  filtered.sort((a, b) => {
+    const titleA = (a.title || "").trim();
+    const titleB = (b.title || "").trim();
+    const authorA = (a.author || "").trim();
+    const authorB = (b.author || "").trim();
+
+    switch (sortValue) {
+      case "title-desc":
+        return titleB.localeCompare(titleA, "pl", { sensitivity: "base" });
+      case "author-asc":
+        return authorA.localeCompare(authorB, "pl", { sensitivity: "base" }) ||
+          titleA.localeCompare(titleB, "pl", { sensitivity: "base" });
+      case "author-desc":
+        return authorB.localeCompare(authorA, "pl", { sensitivity: "base" }) ||
+          titleA.localeCompare(titleB, "pl", { sensitivity: "base" });
+      case "title-asc":
+      default:
+        return titleA.localeCompare(titleB, "pl", { sensitivity: "base" });
+    }
+  });
+
+  renderBooks(filtered, booksList);
+  renderBooks(filtered, readerBooksList);
+}
+
 
 function populateCategoryFilter(books) {
   if (!categoryFilterSelect) return;
