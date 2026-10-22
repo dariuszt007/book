@@ -441,6 +441,7 @@ async function rebuildRendition() {
   }
 }
 
+
 async function loadTableOfContents() {
   if (!tocList) return;
 
@@ -454,13 +455,48 @@ async function loadTableOfContents() {
     const value = normalizeLabel(text).toLowerCase();
     if (!value) return true;
     if (/^rozdział\s+\d+$/i.test(value)) return true;
-    if (/this page contains the following errors/i.test(value)) return true;
+    if (/^chapter\s+\d+$/i.test(value)) return true;
+    if (/^(chapter|chap|part|section|sec|item|file|nav|toc)$/i.test(value)) return true;
     if (/parsererror/i.test(value)) return true;
-    if (/^(chapter|chap|part|section|sec|item|file|nav|toc)\s*\d*$/i.test(value)) return true;
+    if (/this page contains the following errors/i.test(value)) return true;
     return false;
   }
 
-  async function loadSectionMarkup(href) {
+  function flattenTocItems(items, level = 0, output = []) {
+    if (!Array.isArray(items)) return output;
+
+    items.forEach(item => {
+      const label = normalizeLabel(
+        item?.label ||
+        item?.title ||
+        item?.text ||
+        item?.name ||
+        ""
+      );
+
+      const href = (item?.href || item?.url || "").toString().trim();
+
+      if (href || label) {
+        output.push({
+          label,
+          href,
+          level
+        });
+      }
+
+      if (Array.isArray(item?.subitems) && item.subitems.length) {
+        flattenTocItems(item.subitems, level + 1, output);
+      }
+
+      if (Array.isArray(item?.children) && item.children.length) {
+        flattenTocItems(item.children, level + 1, output);
+      }
+    });
+
+    return output;
+  }
+
+  async function loadMarkup(href) {
     try {
       if (!href || !currentBook?.load) return "";
 
@@ -479,9 +515,9 @@ async function loadTableOfContents() {
 
     const parser = new DOMParser();
     let doc = parser.parseFromString(markup, "application/xhtml+xml");
-    let textContent = normalizeLabel(doc?.documentElement?.textContent || "");
+    let probe = normalizeLabel(doc?.documentElement?.textContent || "");
 
-    if (/parsererror/i.test(textContent) || /this page contains the following errors/i.test(textContent)) {
+    if (/parsererror/i.test(probe) || /this page contains the following errors/i.test(probe)) {
       doc = parser.parseFromString(markup, "text/html");
     }
 
@@ -508,6 +544,68 @@ async function loadTableOfContents() {
     return "";
   }
 
+  function renderEntries(entries) {
+    tocList.innerHTML = "";
+
+    entries.forEach(item => {
+      const entry = document.createElement("button");
+      entry.className = "toc-item";
+      entry.textContent = item.label;
+      entry.style.marginLeft = `${(item.level || 0) * 12}px`;
+
+      entry.addEventListener("click", async () => {
+        try {
+          await rendition?.display(item.href);
+          menuDrawer.classList.add("hidden");
+        } catch (error) {
+          console.error("Błąd otwierania TOC:", error, item);
+        }
+      });
+
+      tocList.appendChild(entry);
+    });
+  }
+
+  const navigationCandidates = [
+    currentBook?.navigation?.toc,
+    currentBook?.loaded?.navigation?.toc,
+    currentBook?.book?.navigation?.toc,
+    currentBook?.package?.navigation?.toc
+  ];
+
+  for (const candidate of navigationCandidates) {
+    if (!Array.isArray(candidate) || !candidate.length) continue;
+
+    const flattened = flattenTocItems(candidate);
+    const validEntries = [];
+
+    for (const item of flattened) {
+      let label = normalizeLabel(item.label);
+      const href = (item.href || "").trim();
+
+      if (!href) continue;
+
+      if (!label || isBadLabel(label)) {
+        const markup = await loadMarkup(href);
+        const extracted = extractTitleFromMarkup(markup);
+        if (extracted) label = extracted;
+      }
+
+      if (label && !isBadLabel(label)) {
+        validEntries.push({
+          href,
+          label,
+          level: item.level || 0
+        });
+      }
+    }
+
+    if (validEntries.length) {
+      renderEntries(validEntries);
+      return;
+    }
+  }
+
   const spineItems =
     currentBook?.spine?.spineItems ||
     currentBook?.spine?.items ||
@@ -516,7 +614,8 @@ async function loadTableOfContents() {
   const contentItems = spineItems.filter(item => {
     const href = (item?.href || item?.url || "").toString().trim();
     if (!href) return false;
-    if (/nav|toc/i.test(href)) return false;
+    if (/nav\.xhtml$/i.test(href)) return false;
+    if (/toc\.ncx$/i.test(href)) return false;
     return true;
   });
 
@@ -525,34 +624,43 @@ async function loadTableOfContents() {
     return;
   }
 
-  const tocEntries = [];
+  const fallbackEntries = [];
 
   for (let index = 0; index < contentItems.length; index += 1) {
     const item = contentItems[index];
     const href = (item?.href || item?.url || "").toString().trim();
 
+    if (!href) continue;
+
     let label = "";
 
-    const markup = await loadSectionMarkup(href);
+    const markup = await loadMarkup(href);
     label = extractTitleFromMarkup(markup);
 
     if (!label || isBadLabel(label)) {
-      const navLabel = normalizeLabel(item?.label || item?.title || "");
-      if (navLabel && !isBadLabel(navLabel)) {
-        label = navLabel;
-      }
+      label = normalizeLabel(item?.label || item?.title || "");
     }
 
     if (!label || isBadLabel(label)) {
       label = `Rozdział ${index + 1}`;
     }
 
-    tocEntries.push({
+    fallbackEntries.push({
       href,
       label,
       level: 0
     });
   }
+
+  if (!fallbackEntries.length) {
+    tocList.innerHTML = "<p>Brak spisu treści.</p>";
+    return;
+  }
+
+  renderEntries(fallbackEntries);
+}
+
+
 
   tocList.innerHTML = "";
 
