@@ -529,7 +529,18 @@ searchBooksInput?.addEventListener("input", () => {
   filterAndRenderBooks();
 });
 
-TUTAJ
+categoryFilterSelect?.addEventListener("change", () => {
+  filterAndRenderBooks();
+});
+
+authorFilterSelect?.addEventListener("change", () => {
+  filterAndRenderBooks();
+});
+
+sortBooksSelect?.addEventListener("change", () => {
+  filterAndRenderBooks();
+});
+
 
 
 categoryFilterSelect?.addEventListener("change", () => {
