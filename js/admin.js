@@ -1070,15 +1070,15 @@ function buildOpf(extraImageItems = []) {
 function buildNavXhtml() {
   const list = project.chapters
     .map((chapter, index) => {
-      const title = escapeXml(chapter.title || `Rozdział ${index + 1}`);
+      const title = escapeXml((chapter.title || "").trim() || `Rozdział ${index + 1}`);
       const href = `text/${escapeXml(normalizeChapterFileName(chapter.file, index))}`;
-      return `<li><a href="${href}">${title}</a></li>`;
+      return `      <li><a href="${href}">${title}</a></li>`;
     })
-    .join("\n        ");
+    .join("\n");
 
   return `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="${escapeXml(project.meta.language || "pl")}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${escapeXml(project.meta.language || "pl")}">
 <head>
   <meta charset="utf-8"/>
   <title>Spis treści</title>
@@ -1088,7 +1088,7 @@ function buildNavXhtml() {
   <nav epub:type="toc" id="toc">
     <h1>Spis treści</h1>
     <ol>
-        ${list}
+${list}
     </ol>
   </nav>
 </body>
