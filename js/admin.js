@@ -1125,7 +1125,8 @@ ${navPoints}
 }
 
 function buildChapterXhtml(chapter, index, preparedHtml) {
-  const title = escapeXml(chapter.title || `Rozdział ${index + 1}`);
+  const rawTitle = (chapter.title || "").trim();
+  const title = escapeXml(rawTitle || `Rozdział ${index + 1}`);
   const lang = escapeXml(project.meta.language || "pl");
   const cleanBody = serializeChapterToXhtmlBody(preparedHtml || chapter.html || "<p></p>");
 
@@ -1138,8 +1139,10 @@ function buildChapterXhtml(chapter, index, preparedHtml) {
   <link rel="stylesheet" type="text/css" href="../styles/book.css"/>
 </head>
 <body>
-  <h1>${title}</h1>
-  ${cleanBody}
+  <section class="chapter">
+    <h2>${title}</h2>
+    ${cleanBody}
+  </section>
 </body>
 </html>`;
 }
