@@ -529,6 +529,9 @@ searchBooksInput?.addEventListener("input", () => {
   filterAndRenderBooks();
 });
 
+TUTAJ
+
+
 categoryFilterSelect?.addEventListener("change", () => {
   filterAndRenderBooks();
 });
