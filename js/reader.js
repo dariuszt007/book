@@ -477,7 +477,62 @@ async function rebuildRendition() {
   }
 }
 
-TUTAJ
+
+async function loadTableOfContents() {
+  tocList.innerHTML = "";
+
+  const navToc = currentBook?.navigation?.toc || [];
+  const loadedNavToc = currentBook?.loaded?.navigation?.toc || [];
+  const rawToc = navToc.length ? navToc : loadedNavToc;
+
+  if (!rawToc.length) {
+    tocList.innerHTML = "<p>Brak spisu treści.</p>";
+    return;
+  }
+
+  const flatToc = [];
+
+  function walkToc(items, level = 0) {
+    items.forEach(item => {
+      flatToc.push({
+        label: item.label || "Rozdział",
+        href: item.href || item.url || "",
+        level
+      });
+
+      if (item.subitems && item.subitems.length) {
+        walkToc(item.subitems, level + 1);
+      }
+    });
+  }
+
+  walkToc(rawToc);
+
+  if (!flatToc.length) {
+    tocList.innerHTML = "<p>Brak spisu treści.</p>";
+    return;
+  }
+
+  flatToc.forEach(item => {
+    const entry = document.createElement("button");
+    entry.className = "toc-item";
+    entry.textContent = item.label;
+    entry.style.marginLeft = `${item.level * 12}px`;
+
+    entry.addEventListener("click", async () => {
+      try {
+        if (item.href) {
+          await rendition?.display(item.href);
+          menuDrawer.classList.add("hidden");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    tocList.appendChild(entry);
+  });
+}
 
 function showOnlySection(section) {
   readerLibraryPanel.classList.add("hidden");
