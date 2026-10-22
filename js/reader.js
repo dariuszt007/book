@@ -71,6 +71,7 @@ async function loadLibrary() {
   }
 }
 
+TUTAJ
 
 function populateCategoryFilter(books) {
   if (!categoryFilterSelect) return;
