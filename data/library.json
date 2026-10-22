@@ -1,15 +1,6 @@
 {
   "books": [
-{
-  "id": "bocian",
-  "title": "bocian",
-  "author": "Dariusz",
-  "language": "pl",
-  "category": "dla dzieci",
-  "epub": "books/bocian.epub",
-  "cover": "covers/bocian.jpg",
-  "description": ""
-},
+
 
 {
   "id": "cz-owiek-z-blizna",
@@ -29,16 +20,9 @@
   "description": "",
   "cover": "covers/pies-baskervilleow.jpg",
   "epub": "books/pies-baskervilleow.epub"
-},
-    
-{
-  "id": "test",
-  "title": "Test",
-  "author": "Test",
-  "category": "Test",
-  "description": "",
-  "cover": "covers/IMG_4267.jpeg",
-  "epub": "books/t.epub"
 }
+
+
+    
   ]
 }
