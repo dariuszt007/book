@@ -477,24 +477,7 @@ async function rebuildRendition() {
   }
 }
 
-async function loadTableOfContents() {
-  if (!currentBook?.navigation?.toc) return;
-
-  const toc = currentBook.navigation.toc || [];
-  tocList.innerHTML = "";
-
-  toc.forEach(item => {
-    const node = document.createElement("div");
-    node.className = "toc-item";
-    node.textContent = item.label;
-    node.addEventListener("click", async () => {
-      await rendition.display(item.href);
-      tocPanel.classList.add("hidden");
-      menuDrawer.classList.add("hidden");
-    });
-    tocList.appendChild(node);
-  });
-}
+TUTAJ
 
 function showOnlySection(section) {
   readerLibraryPanel.classList.add("hidden");
