@@ -723,43 +723,7 @@ margin-top: 14px;
 }
 
 
-@media (max-width: 640px) {
-  .panel {
-    padding: 14px;
-  }
-
-  .book-card {
-    grid-template-columns: 72px 1fr;
-  }
-
-  .book-card img {
-    width: 72px;
-    height: 102px;
-  }
-
-  .drawer {
-    width: min(300px, 76vw);
-    top: 10px;
-    right: 10px;
-  }
-
-  .drawer .seg-btn {
-    min-height: 52px;
-    font-size: 20px;
-  }
-
-  .drawer .seg-btn-large {
-    font-size: 30px;
-  }
-
-  .drawer-theme-grid .theme-tile {
-    min-height: 104px;
-  }
-
-  .drawer-theme-grid .theme-aa {
-    font-size: 34px;
-  }
-}
+TUTAJ
 
 :root {
   --bg: #020617;
