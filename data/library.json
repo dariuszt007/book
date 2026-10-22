@@ -12,12 +12,12 @@
 },
 
 {
-  "id": "czlowiek-z-blizna",
-  "title": "Czlowiek z Blizn",
+  "id": "cz-owiek-z-blizna",
+  "title": "Człowiek z blizną",
   "author": "Arthur Conan Doyle",
-  "category": "",
+  "category": "Powieść",
   "description": "",
-  "cover": "covers/doyle-czlowiek-z-blizna.jpg",
+  "cover": "covers/IMG_3076.jpeg",
   "epub": "books/doyle-czlowiek-z-blizna.epub"
 },
 
