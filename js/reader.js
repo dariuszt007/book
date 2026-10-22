@@ -442,6 +442,8 @@ async function rebuildRendition() {
 }
 
 
+
+
 async function loadTableOfContents() {
   if (!tocList) return;
 
@@ -659,8 +661,6 @@ async function loadTableOfContents() {
 
   renderEntries(fallbackEntries);
 }
-
-
 
   tocList.innerHTML = "";
 
