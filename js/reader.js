@@ -52,22 +52,7 @@ let currentMargin = 20;
 let currentSpread = "none";
 let uiVisible = true;
 
-async function loadLibrary() {
-  booksList.innerHTML = "<p>Ładowanie biblioteki...</p>";
-  readerBooksList.innerHTML = "<p>Ładowanie biblioteki...</p>";
-
-  try {
-    const response = await fetch(`data/library.json?v=${Date.now()}`);
-    const data = await response.json();
-libraryBooks = data.books || [];
-populateCategoryFilter(libraryBooks);
-filterAndRenderBooks();
-  } catch (error) {
-    booksList.innerHTML = "<p>Nie udało się wczytać biblioteki.</p>";
-    readerBooksList.innerHTML = "<p>Nie udało się wczytać biblioteki.</p>";
-    console.error(error);
-  }
-}
+TUTAJ
 
 function populateCategoryFilter(books) {
   if (!categoryFilterSelect) return;
