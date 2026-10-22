@@ -2,7 +2,10 @@ const booksList = document.getElementById("booksList");
 const readerBooksList = document.getElementById("readerBooksList");
 const refreshLibraryBtn = document.getElementById("refreshLibraryBtn");
 const searchBooksInput = document.getElementById("searchBooksInput");
-TUTAJ
+const categoryFilterSelect = document.getElementById("categoryFilterSelect");
+const authorFilterSelect = document.getElementById("authorFilterSelect");
+const sortBooksSelect = document.getElementById("sortBooksSelect");
+
 const categoryFilterSelect = document.getElementById("categoryFilterSelect");
 
 const libraryPage = document.getElementById("libraryPage");
