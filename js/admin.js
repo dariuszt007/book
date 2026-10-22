@@ -197,11 +197,7 @@ function normalizeFileName(name, fallbackBase, ext) {
 }
 
 function normalizeChapterFileName(fileName, index) {
-  const fallback = `chapter-${index + 1}.xhtml`;
-  const clean = (fileName || "").trim();
-  if (!clean) return fallback;
-  if (/\.(xhtml|html)$/i.test(clean)) return clean;
-  return `${clean}.xhtml`;
+  return `chapter-${index + 1}.xhtml`;
 }
 
 function compareStringsLocale(a, b) {
