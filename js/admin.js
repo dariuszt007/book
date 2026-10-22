@@ -1067,7 +1067,7 @@ function buildNavXhtml() {
   const list = project.chapters
     .map((chapter, index) => {
       const title = escapeXml((chapter.title || "").trim() || `Rozdział ${index + 1}`);
-      const href = `text/${escapeXml(normalizeChapterFileName(chapter.file, index))}`;
+      const href = `text/${normalizeChapterFileName(chapter.file, index)}`;
       return `      <li><a href="${href}">${title}</a></li>`;
     })
     .join("\n");
