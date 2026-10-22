@@ -1098,15 +1098,14 @@ ${list}
 function buildTocNcx() {
   const navPoints = project.chapters
     .map((chapter, index) => {
-      const title = escapeXml(chapter.title || `Rozdział ${index + 1}`);
+      const title = escapeXml((chapter.title || "").trim() || `Rozdział ${index + 1}`);
       const href = `text/${escapeXml(normalizeChapterFileName(chapter.file, index))}`;
-      return `
-    <navPoint id="navPoint-${index + 1}" playOrder="${index + 1}">
+      return `    <navPoint id="navPoint-${index + 1}" playOrder="${index + 1}">
       <navLabel><text>${title}</text></navLabel>
       <content src="${href}"/>
     </navPoint>`;
     })
-    .join("");
+    .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
@@ -1119,7 +1118,8 @@ function buildTocNcx() {
   <docTitle>
     <text>${escapeXml(project.meta.title || "Bez tytułu")}</text>
   </docTitle>
-  <navMap>${navPoints}
+  <navMap>
+${navPoints}
   </navMap>
 </ncx>`;
 }
