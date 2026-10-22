@@ -1,1 +1,839 @@
+const booksList = document.getElementById("booksList");
+const readerBooksList = document.getElementById("readerBooksList");
+const refreshLibraryBtn = document.getElementById("refreshLibraryBtn");
+const searchBooksInput = document.getElementById("searchBooksInput");
+const categoryFilterSelect = document.getElementById("categoryFilterSelect");
+const authorFilterSelect = document.getElementById("authorFilterSelect");
+const sortBooksSelect = document.getElementById("sortBooksSelect");
+const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 
+const libraryPage = document.getElementById("libraryPage");
+const readerScreen = document.getElementById("readerScreen");
+
+const readerBookTitle = document.getElementById("readerBookTitle");
+const readerBookAuthor = document.getElementById("readerBookAuthor");
+const readingProgressText = document.getElementById("readingProgressText");
+
+const viewer = document.getElementById("viewer");
+const prevPageBtn = document.getElementById("prevPageBtn");
+const nextPageBtn = document.getElementById("nextPageBtn");
+
+const openMenuBtn = document.getElementById("openMenuBtn");
+const closeMenuBtn = document.getElementById("closeMenuBtn");
+const menuDrawer = document.getElementById("menuDrawer");
+
+const toggleLibraryBtn = document.getElementById("toggleLibraryBtn");
+const toggleTocBtn = document.getElementById("toggleTocBtn");
+const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
+const closeReaderBtn = document.getElementById("closeReaderBtn");
+const toggleUiZone = document.getElementById("toggleUiZone");
+
+const readerLibraryPanel = document.getElementById("readerLibraryPanel");
+const tocPanel = document.getElementById("tocPanel");
+const readerSettingsPanel = document.getElementById("readerSettingsPanel");
+const tocList = document.getElementById("tocList");
+
+const fontMinusBtn = document.getElementById("fontMinusBtn");
+const fontPlusBtn = document.getElementById("fontPlusBtn");
+const spreadOneBtn = document.getElementById("spreadOneBtn");
+const spreadTwoBtn = document.getElementById("spreadTwoBtn");
+
+const themeButtons = document.querySelectorAll(".theme-tile");
+
+let libraryBooks = [];
+let currentBookMeta = null;
+let currentBook = null;
+let rendition = null;
+
+let currentTheme = "sepia";
+let currentFontSize = 100;
+let currentMargin = 20;
+let currentSpread = "none";
+let uiVisible = true;
+
+async function loadLibrary() {
+  if (booksList) booksList.innerHTML = "<p>Ładowanie biblioteki...</p>";
+  if (readerBooksList) readerBooksList.innerHTML = "<p>Ładowanie biblioteki...</p>";
+
+  try {
+    const response = await fetch(`data/library.json?v=${Date.now()}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (Array.isArray(data)) {
+      libraryBooks = data;
+    } else if (Array.isArray(data?.books)) {
+      libraryBooks = data.books;
+    } else {
+      libraryBooks = [];
+    }
+
+    populateCategoryFilter(libraryBooks);
+    populateAuthorFilter(libraryBooks);
+    filterAndRenderBooks();
+  } catch (error) {
+    if (booksList) booksList.innerHTML = "<p>Nie udało się wczytać biblioteki.</p>";
+    if (readerBooksList) readerBooksList.innerHTML = "<p>Nie udało się wczytać biblioteki.</p>";
+    console.error("Błąd loadLibrary:", error);
+  }
+}
+
+function populateCategoryFilter(books) {
+  if (!categoryFilterSelect) return;
+
+  const currentValue = categoryFilterSelect.value;
+
+  const categories = [...new Set(
+    books
+      .map(book => (book?.category || "").toString().trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "pl", { sensitivity: "base" }));
+
+  categoryFilterSelect.innerHTML = `<option value="">Wszystkie kategorie</option>`;
+
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilterSelect.appendChild(option);
+  });
+
+  if (categories.includes(currentValue)) {
+    categoryFilterSelect.value = currentValue;
+  } else {
+    categoryFilterSelect.value = "";
+  }
+}
+
+function populateAuthorFilter(books) {
+  if (!authorFilterSelect) return;
+
+  const currentValue = authorFilterSelect.value;
+
+  const authors = [...new Set(
+    books
+      .map(book => (book?.author || "").toString().trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "pl", { sensitivity: "base" }));
+
+  authorFilterSelect.innerHTML = `<option value="">Wszyscy autorzy</option>`;
+
+  authors.forEach(author => {
+    const option = document.createElement("option");
+    option.value = author;
+    option.textContent = author;
+    authorFilterSelect.appendChild(option);
+  });
+
+  if (authors.includes(currentValue)) {
+    authorFilterSelect.value = currentValue;
+  } else {
+    authorFilterSelect.value = "";
+  }
+}
+
+function filterAndRenderBooks() {
+  const q = (searchBooksInput?.value || "").trim().toLowerCase();
+  const selectedCategory = (categoryFilterSelect?.value || "").trim().toLowerCase();
+  const selectedAuthor = (authorFilterSelect?.value || "").trim().toLowerCase();
+  const sortValue = sortBooksSelect?.value || "title-asc";
+
+  const filtered = libraryBooks.filter(book => {
+    const title = (book?.title || "").toString();
+    const author = (book?.author || "").toString();
+    const category = (book?.category || "").toString();
+    const description = (book?.description || "").toString();
+
+    const matchesSearch = [title, author, category, description]
+      .join(" ")
+      .toLowerCase()
+      .includes(q);
+
+    const matchesCategory =
+      !selectedCategory ||
+      category.trim().toLowerCase() === selectedCategory;
+
+    const matchesAuthor =
+      !selectedAuthor ||
+      author.trim().toLowerCase() === selectedAuthor;
+
+    return matchesSearch && matchesCategory && matchesAuthor;
+  });
+
+  filtered.sort((a, b) => {
+    const titleA = ((a?.title || "").toString()).trim();
+    const titleB = ((b?.title || "").toString()).trim();
+    const authorA = ((a?.author || "").toString()).trim();
+    const authorB = ((b?.author || "").toString()).trim();
+
+    switch (sortValue) {
+      case "title-desc":
+        return titleB.localeCompare(titleA, "pl", { sensitivity: "base" });
+      case "author-asc":
+        return authorA.localeCompare(authorB, "pl", { sensitivity: "base" }) ||
+          titleA.localeCompare(titleB, "pl", { sensitivity: "base" });
+      case "author-desc":
+        return authorB.localeCompare(authorA, "pl", { sensitivity: "base" }) ||
+          titleA.localeCompare(titleB, "pl", { sensitivity: "base" });
+      case "title-asc":
+      default:
+        return titleA.localeCompare(titleB, "pl", { sensitivity: "base" });
+    }
+  });
+
+  renderBooks(filtered, booksList);
+  renderBooks(filtered, readerBooksList);
+}
+
+function resetFiltersAndSorting() {
+  if (searchBooksInput) searchBooksInput.value = "";
+  if (categoryFilterSelect) categoryFilterSelect.value = "";
+  if (authorFilterSelect) authorFilterSelect.value = "";
+  if (sortBooksSelect) sortBooksSelect.value = "title-asc";
+
+  filterAndRenderBooks();
+}
+
+function renderBooks(books, container) {
+  if (!container) return;
+
+  if (!books.length) {
+    container.innerHTML = "<p>Brak książek w bibliotece.</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  books.forEach(book => {
+    const title = book?.title || "Bez tytułu";
+    const author = book?.author || "Nieznany autor";
+    const category = book?.category || "";
+    const cover = book?.cover || "assets/no-cover.svg";
+
+    const card = document.createElement("div");
+    card.className = "book-card";
+    card.innerHTML = `
+      <img src="${cover}" alt="${escapeHtml(title)}" />
+      <div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(author)}</p>
+        <p>${escapeHtml(category)}</p>
+      </div>
+    `;
+
+    card.addEventListener("click", () => openBook(book));
+    container.appendChild(card);
+  });
+}
+
+function getViewerSize() {
+  const rect = viewer.getBoundingClientRect();
+  return {
+    width: Math.max(320, Math.floor(rect.width || window.innerWidth || 390)),
+    height: Math.max(420, Math.floor(rect.height || window.innerHeight || 700))
+  };
+}
+
+function getThemeStyles(theme) {
+  switch (theme) {
+    case "night":
+      return {
+        background: "#2f3138",
+        color: "#f3f4f6",
+        link: "#93c5fd",
+        fontFamily: "Georgia, serif"
+      };
+    case "console":
+      return {
+        background: "#101410",
+        color: "#7CFC98",
+        link: "#9effb6",
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+      };
+    case "day":
+      return {
+        background: "#ffffff",
+        color: "#111827",
+        link: "#2563eb",
+        fontFamily: "Georgia, serif"
+      };
+    case "sepia":
+    default:
+      return {
+        background: "#f4ecd8",
+        color: "#3f2f1d",
+        link: "#8b5e00",
+        fontFamily: "Georgia, serif"
+      };
+  }
+}
+
+function applyThemeSelectionUi() {
+  themeButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.theme === currentTheme);
+  });
+
+  spreadOneBtn?.classList.toggle("active", currentSpread === "none");
+  spreadTwoBtn?.classList.toggle("active", currentSpread === "always");
+}
+
+function applyReaderSettings() {
+  if (!rendition) return;
+
+  const theme = getThemeStyles(currentTheme);
+
+  rendition.themes.default({
+    body: {
+      background: theme.background,
+      color: theme.color,
+      "font-family": theme.fontFamily,
+      "line-height": "1.8",
+      padding: `${currentMargin}px`
+    },
+    p: { color: theme.color },
+    div: { color: theme.color },
+    span: { color: theme.color },
+    h1: { color: theme.color },
+    h2: { color: theme.color },
+    h3: { color: theme.color },
+    h4: { color: theme.color },
+    h5: { color: theme.color },
+    h6: { color: theme.color },
+    li: { color: theme.color },
+    blockquote: { color: theme.color },
+    a: { color: theme.link }
+  });
+
+  rendition.themes.fontSize(`${currentFontSize}%`);
+
+  try {
+    rendition.spread(currentSpread);
+  } catch (error) {
+    console.warn(error);
+  }
+
+  applyThemeSelectionUi();
+
+  requestAnimationFrame(() => {
+    rendition?.resize();
+  });
+}
+
+function bindRenditionEvents(bookId) {
+  if (!rendition) return;
+
+  rendition.on("relocated", (location) => {
+    if (location?.start?.cfi) {
+      localStorage.setItem(getLocationStorageKey(bookId), location.start.cfi);
+    }
+
+    const percentage = location?.start?.percentage || 0;
+    readingProgressText.textContent = `Postęp: ${Math.round(percentage * 100)}%`;
+  });
+}
+
+async function createRenditionFromBook(book, savedLocation) {
+  const size = getViewerSize();
+
+  viewer.innerHTML = "";
+
+  rendition = book.renderTo("viewer", {
+    width: size.width,
+    height: size.height,
+    spread: currentSpread,
+    flow: "paginated",
+    manager: "default"
+  });
+
+  applyReaderSettings();
+  bindRenditionEvents(currentBookMeta.id);
+
+  await rendition.display(savedLocation || undefined);
+
+  requestAnimationFrame(() => {
+    rendition?.resize();
+    setTimeout(() => rendition?.resize(), 120);
+  });
+}
+
+async function openBook(bookMeta) {
+  currentBookMeta = bookMeta;
+  readerBookTitle.textContent = bookMeta?.title || "Bez tytułu";
+  readerBookAuthor.textContent = bookMeta?.author || "Nieznany autor";
+
+  libraryPage.classList.add("hidden");
+  readerScreen.classList.remove("hidden");
+  menuDrawer.classList.add("hidden");
+  readerLibraryPanel.classList.add("hidden");
+  tocPanel.classList.add("hidden");
+  readerSettingsPanel.classList.add("hidden");
+  uiVisible = true;
+  readerScreen.classList.remove("reader-ui-hidden");
+
+  viewer.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;background:#f4ecd8;color:#3f2f1d;">Ładowanie książki...</div>`;
+
+  try {
+    const epubPath = bookMeta?.epub;
+    if (!epubPath) {
+      throw new Error("Brak ścieżki EPUB w danych książki.");
+    }
+
+    const response = await fetch(`${epubPath}?v=${Date.now()}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    currentBook = ePub(arrayBuffer);
+
+    const savedLocation = localStorage.getItem(getLocationStorageKey(bookMeta.id));
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await createRenditionFromBook(currentBook, savedLocation);
+
+    currentBook.ready.then(() => {
+      loadTableOfContents();
+      requestAnimationFrame(() => rendition?.resize());
+      setTimeout(() => rendition?.resize(), 160);
+    });
+  } catch (error) {
+    console.error(error);
+    viewer.innerHTML = `
+      <div style="height:100%;padding:24px;background:#fff;color:#111827;overflow:auto;">
+        <h2>Nie udało się otworzyć książki</h2>
+        <p><strong>Plik:</strong> ${bookMeta?.epub || "brak"}</p>
+        <p><strong>Błąd:</strong> ${error?.message || error}</p>
+      </div>
+    `;
+  }
+}
+
+async function rebuildRendition() {
+  if (!currentBookMeta) return;
+
+  const savedLocation =
+    rendition?.currentLocation()?.start?.cfi ||
+    localStorage.getItem(getLocationStorageKey(currentBookMeta.id)) ||
+    undefined;
+
+  try {
+    const response = await fetch(`${currentBookMeta.epub}?v=${Date.now()}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    currentBook = ePub(arrayBuffer);
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await createRenditionFromBook(currentBook, savedLocation);
+
+    currentBook.ready.then(() => {
+      loadTableOfContents();
+      requestAnimationFrame(() => rendition?.resize());
+      setTimeout(() => rendition?.resize(), 160);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function loadTableOfContents() {
+  if (!tocList) return;
+
+  tocList.innerHTML = "";
+
+  function normalizeLabel(value) {
+    return (value || "").toString().replace(/\s+/g, " ").trim();
+  }
+
+  function isTechnicalLabel(label) {
+    return /^(chap|chapter|part|sec|section|item|nav|toc|file)\d*$/i.test((label || "").trim());
+  }
+
+  async function loadTextByHref(href) {
+    try {
+      if (!href || !currentBook?.archive) return "";
+
+      const cleanHref = href.split("#")[0];
+      if (!cleanHref) return "";
+
+      const text = await currentBook.archive.getText(cleanHref);
+      return text || "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  async function buildNavLabelMap() {
+    const map = new Map();
+
+    try {
+      const spineItems =
+        currentBook?.spine?.spineItems ||
+        currentBook?.spine?.items ||
+        [];
+
+      const navItem = spineItems.find(item => /nav\.xhtml|toc|nav/i.test((item?.href || item?.url || "").toString()));
+      if (!navItem) return map;
+
+      const navHref = (navItem?.href || item?.url || "").toString().trim();
+      if (!navHref) return map;
+
+      const navText = await loadTextByHref(navHref);
+      if (!navText) return map;
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(navText, "text/html");
+
+      const links = [...doc.querySelectorAll('nav a[href], a[href]')];
+      links.forEach(link => {
+        const href = (link.getAttribute("href") || "").trim();
+        const text = normalizeLabel(link.textContent || "");
+        if (!href || !text) return;
+
+        map.set(href, text);
+        map.set(href.split("#")[0], text);
+      });
+    } catch (error) {
+      console.warn("Nie udało się odczytać nav.xhtml", error);
+    }
+
+    return map;
+  }
+
+  async function readTitleFromChapter(href) {
+    try {
+      const text = await loadTextByHref(href);
+      if (!text) return "";
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "text/html");
+
+      const candidates = [
+        normalizeLabel(doc.querySelector("title")?.textContent),
+        normalizeLabel(doc.querySelector("h1")?.textContent),
+        normalizeLabel(doc.querySelector("h2")?.textContent),
+        normalizeLabel(doc.querySelector("h3")?.textContent)
+      ].filter(Boolean);
+
+      const valid = candidates.find(text =>
+        text &&
+        !/this page contains the following errors/i.test(text)
+      );
+
+      return valid || "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  const navLabelMap = await buildNavLabelMap();
+
+  const tocCandidates = [
+    currentBook?.navigation?.toc,
+    currentBook?.loaded?.navigation?.toc,
+    currentBook?.book?.navigation?.toc,
+    currentBook?.package?.navigation?.toc
+  ].filter(Boolean);
+
+  let rawToc = [];
+  for (const candidate of tocCandidates) {
+    if (Array.isArray(candidate) && candidate.length) {
+      rawToc = candidate;
+      break;
+    }
+  }
+
+  const flatToc = [];
+
+  function walkToc(items, level = 0) {
+    if (!Array.isArray(items)) return;
+
+    items.forEach(item => {
+      const href = (item?.href || item?.url || item?.idref || "").toString().trim();
+      let label = normalizeLabel(item?.label || item?.title || "");
+
+      const fromNav = navLabelMap.get(href) || navLabelMap.get(href.split("#")[0]);
+      if ((!label || isTechnicalLabel(label)) && fromNav) {
+        label = fromNav;
+      }
+
+      if (href) {
+        flatToc.push({
+          label,
+          href,
+          level
+        });
+      }
+
+      if (Array.isArray(item?.subitems) && item.subitems.length) {
+        walkToc(item.subitems, level + 1);
+      }
+
+      if (Array.isArray(item?.children) && item.children.length) {
+        walkToc(item.children, level + 1);
+      }
+    });
+  }
+
+  if (rawToc.length) {
+    walkToc(rawToc);
+  }
+
+  if (!flatToc.length) {
+    const spineItems =
+      currentBook?.spine?.spineItems ||
+      currentBook?.spine?.items ||
+      [];
+
+    for (let index = 0; index < spineItems.length; index += 1) {
+      const item = spineItems[index];
+      const href = (item?.href || item?.url || "").toString().trim();
+
+      if (!href) continue;
+      if (/nav|toc/i.test(href)) continue;
+
+      let label =
+        normalizeLabel(navLabelMap.get(href) || navLabelMap.get(href.split("#")[0]) || "") ||
+        normalizeLabel(item?.label || item?.title || "");
+
+      if (!label || isTechnicalLabel(label)) {
+        const chapterTitle = await readTitleFromChapter(href);
+        if (chapterTitle) {
+          label = chapterTitle;
+        }
+      }
+
+      if (!label || isTechnicalLabel(label)) {
+        const fallbackId = normalizeLabel(item?.idref || item?.id || "");
+        if (fallbackId && !isTechnicalLabel(fallbackId)) {
+          label = fallbackId;
+        }
+      }
+
+      if (!label || isTechnicalLabel(label)) {
+        label = `Rozdział ${index + 1}`;
+      }
+
+      flatToc.push({
+        label,
+        href,
+        level: 0
+      });
+    }
+  } else {
+    for (let i = 0; i < flatToc.length; i += 1) {
+      const item = flatToc[i];
+
+      if (!item.href) continue;
+
+      if (!item.label || isTechnicalLabel(item.label)) {
+        const fromNav = navLabelMap.get(item.href) || navLabelMap.get(item.href.split("#")[0]);
+        if (fromNav) {
+          item.label = fromNav;
+        }
+      }
+
+      if (!item.label || isTechnicalLabel(item.label)) {
+        const chapterTitle = await readTitleFromChapter(item.href);
+        if (chapterTitle) {
+          item.label = chapterTitle;
+        }
+      }
+
+      if (!item.label || isTechnicalLabel(item.label)) {
+        item.label = `Rozdział ${i + 1}`;
+      }
+    }
+  }
+
+  const uniqueToc = [];
+  const seen = new Set();
+
+  flatToc.forEach(item => {
+    const cleanLabel = normalizeLabel(item.label);
+    const cleanHref = (item.href || "").toString().trim();
+    const hrefWithoutHash = cleanHref.split("#")[0];
+    const key = `${cleanLabel}||${cleanHref}`;
+
+    if (!cleanHref) return;
+    if (/nav|toc/i.test(hrefWithoutHash)) return;
+    if (seen.has(key)) return;
+
+    seen.add(key);
+    uniqueToc.push({
+      label: cleanLabel || "Rozdział",
+      href: cleanHref,
+      level: item.level || 0
+    });
+  });
+
+  if (!uniqueToc.length) {
+    tocList.innerHTML = "<p>Brak spisu treści.</p>";
+    return;
+  }
+
+  tocList.innerHTML = "";
+
+  uniqueToc.forEach(item => {
+    const entry = document.createElement("button");
+    entry.className = "toc-item";
+    entry.textContent = item.label;
+    entry.style.marginLeft = `${item.level * 12}px`;
+
+    entry.addEventListener("click", async () => {
+      try {
+        if (item.href) {
+          await rendition?.display(item.href);
+          menuDrawer.classList.add("hidden");
+        }
+      } catch (error) {
+        console.error("Błąd otwierania TOC:", error, item);
+      }
+    });
+
+    tocList.appendChild(entry);
+  });
+}
+
+function showOnlySection(section) {
+  readerLibraryPanel.classList.add("hidden");
+  tocPanel.classList.add("hidden");
+  readerSettingsPanel.classList.add("hidden");
+
+  if (section) {
+    section.classList.remove("hidden");
+  }
+}
+
+function toggleUi() {
+  if (!menuDrawer.classList.contains("hidden")) return;
+
+  uiVisible = !uiVisible;
+  readerScreen.classList.toggle("reader-ui-hidden", !uiVisible);
+}
+
+function closeReader() {
+  readerScreen.classList.add("hidden");
+  libraryPage.classList.remove("hidden");
+  menuDrawer.classList.add("hidden");
+}
+
+function getLocationStorageKey(bookId) {
+  return `reader_location_${bookId}`;
+}
+
+refreshLibraryBtn?.addEventListener("click", loadLibrary);
+
+searchBooksInput?.addEventListener("input", () => {
+  filterAndRenderBooks();
+});
+
+categoryFilterSelect?.addEventListener("change", () => {
+  filterAndRenderBooks();
+});
+
+authorFilterSelect?.addEventListener("change", () => {
+  filterAndRenderBooks();
+});
+
+sortBooksSelect?.addEventListener("change", () => {
+  filterAndRenderBooks();
+});
+
+resetFiltersBtn?.addEventListener("click", () => {
+  resetFiltersAndSorting();
+});
+
+prevPageBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  rendition?.prev();
+});
+
+nextPageBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  rendition?.next();
+});
+
+openMenuBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  menuDrawer.classList.remove("hidden");
+});
+
+closeMenuBtn?.addEventListener("click", () => {
+  menuDrawer.classList.add("hidden");
+});
+
+toggleLibraryBtn?.addEventListener("click", () => {
+  showOnlySection(readerLibraryPanel);
+});
+
+toggleTocBtn?.addEventListener("click", () => {
+  showOnlySection(tocPanel);
+});
+
+toggleSettingsBtn?.addEventListener("click", () => {
+  showOnlySection(readerSettingsPanel);
+});
+
+closeReaderBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  closeReader();
+});
+
+toggleUiZone?.addEventListener("click", toggleUi);
+
+fontMinusBtn?.addEventListener("click", () => {
+  currentFontSize = Math.max(80, currentFontSize - 10);
+  applyReaderSettings();
+});
+
+fontPlusBtn?.addEventListener("click", () => {
+  currentFontSize = Math.min(180, currentFontSize + 10);
+  applyReaderSettings();
+});
+
+spreadOneBtn?.addEventListener("click", async () => {
+  currentSpread = "none";
+  applyThemeSelectionUi();
+  await rebuildRendition();
+});
+
+spreadTwoBtn?.addEventListener("click", async () => {
+  currentSpread = "always";
+  applyThemeSelectionUi();
+  await rebuildRendition();
+});
+
+themeButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentTheme = btn.dataset.theme;
+    applyReaderSettings();
+  });
+});
+
+window.addEventListener("resize", debounce(() => {
+  rendition?.resize();
+  setTimeout(() => rendition?.resize(), 120);
+}, 180));
+
+document.addEventListener("keydown", (event) => {
+  if (readerScreen.classList.contains("hidden")) return;
+
+  if (event.key === "ArrowLeft") rendition?.prev();
+  if (event.key === "ArrowRight") rendition?.next();
+  if (event.key === "Escape") {
+    if (!menuDrawer.classList.contains("hidden")) {
+      menuDrawer.classList.add("hidden");
+    } else {
+      closeReader();
+    }
+  }
+});
+
+applyThemeSelectionUi();
+loadLibrary();
