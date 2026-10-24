@@ -108,7 +108,6 @@
           </div>
 
           <div id="readerSettingsPanel" class="drawer-section hidden">
-            <div class="drawer-section hidden" id="readerSettingsPanel">
   <div class="settings-inline-row">
     <div class="settings-inline-field">
       <label class="settings-inline-label" for="fontFamilySelect">Czcionka</label>
@@ -135,43 +134,41 @@
     </div>
   </div>
 
+  <div class="drawer-settings-controls">
+    <div class="segmented-group">
+      <button id="fontMinusBtn" class="seg-btn" aria-label="Zmniejsz czcionkę" type="button">A</button>
+      <button id="fontPlusBtn" class="seg-btn seg-btn-large" aria-label="Zwiększ czcionkę" type="button">A</button>
+    </div>
 
+    <div class="segmented-group">
+      <button id="spreadOneBtn" class="seg-btn" aria-label="Widok jednej strony" type="button">1 str.</button>
+      <button id="spreadTwoBtn" class="seg-btn" aria-label="Widok dwóch stron" type="button">2 str.</button>
+    </div>
+  </div>
+
+  <div class="drawer-theme-grid">
+    <button class="theme-tile" data-theme="day" type="button">
+      <span class="theme-aa">Aa</span>
+      <span>Dzień</span>
+    </button>
+
+    <button class="theme-tile" data-theme="night" type="button">
+      <span class="theme-aa">Aa</span>
+      <span>Noc</span>
+    </button>
+
+    <button class="theme-tile active" data-theme="sepia" type="button">
+      <span class="theme-aa">Aa</span>
+      <span>Sepia</span>
+    </button>
+
+    <button class="theme-tile" data-theme="console" type="button">
+      <span class="theme-aa">Aa</span>
+      <span>Console</span>
+    </button>
+  </div>
+</div>
             
-
-            <div class="drawer-settings-controls">
-              <div class="segmented-group">
-                <button id="fontMinusBtn" class="seg-btn" aria-label="Zmniejsz czcionkę">A</button>
-                <button id="fontPlusBtn" class="seg-btn seg-btn-large" aria-label="Zwiększ czcionkę">A</button>
-              </div>
-
-              <div class="segmented-group">
-                <button id="spreadOneBtn" class="seg-btn" aria-label="Widok jednej strony">1 str.</button>
-                <button id="spreadTwoBtn" class="seg-btn" aria-label="Widok dwóch stron">2 str.</button>
-              </div>
-            </div>
-
-            <div class="drawer-theme-grid">
-              <button class="theme-tile" data-theme="day">
-                <span class="theme-aa">Aa</span>
-                <span>Dzień</span>
-              </button>
-
-              <button class="theme-tile" data-theme="night">
-                <span class="theme-aa">Aa</span>
-                <span>Noc</span>
-              </button>
-
-              <button class="theme-tile active" data-theme="sepia">
-                <span class="theme-aa">Aa</span>
-                <span>Sepia</span>
-              </button>
-
-              <button class="theme-tile" data-theme="console">
-                <span class="theme-aa">Aa</span>
-                <span>Console</span>
-              </button>
-            </div>
-          </div>
         </div>
       </aside>
     </div>
