@@ -485,14 +485,14 @@ function renderCurrentChapter() {
   const chapter = getCurrentChapter();
 
   if (!chapter) {
-    chapterTitleInput.value = "";
+    if (chapterTitleInput) chapterTitleInput.value = "";
     if (chapterHtmlInput) chapterHtmlInput.value = "";
     setEditorHtml("<p>Zacznij pisać treść rozdziału tutaj...</p>");
     updateChapterSwitcherButtons();
     return;
   }
 
-  chapterTitleInput.value = chapter.title || "";
+  if (chapterTitleInput) chapterTitleInput.value = chapter.title || "";
   if (chapterHtmlInput) chapterHtmlInput.value = chapter.html || "";
   setEditorHtml(chapter.html || "<p></p>");
   renderChapterSelect();
@@ -503,7 +503,12 @@ function persistCurrentChapter() {
   const chapter = getCurrentChapter();
   if (!chapter) return;
 
-  chapter.title = chapterTitleInput.value.trim() || `Rozdział ${currentChapterIndex + 1}`;
+  if (chapterTitleInput) {
+    chapter.title = chapterTitleInput.value.trim() || `Rozdział ${currentChapterIndex + 1}`;
+  } else {
+    chapter.title = chapter.title?.trim() || `Rozdział ${currentChapterIndex + 1}`;
+  }
+
   chapter.html = getEditorHtml() || "<p></p>";
   if (chapterHtmlInput) chapterHtmlInput.value = chapter.html;
 
