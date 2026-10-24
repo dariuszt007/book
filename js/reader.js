@@ -1,3 +1,6 @@
+const fontFamilySelect = document.getElementById("fontFamilySelect");
+const pageTransitionSelect = document.getElementById("pageTransitionSelect");
+
 const booksList = document.getElementById("booksList");
 const readerBooksList = document.getElementById("readerBooksList");
 const refreshLibraryBtn = document.getElementById("refreshLibraryBtn");
@@ -40,6 +43,7 @@ const spreadTwoBtn = document.getElementById("spreadTwoBtn");
 
 const themeButtons = document.querySelectorAll(".theme-tile");
 
+
 let libraryBooks = [];
 let currentBookMeta = null;
 let currentBook = null;
@@ -49,7 +53,53 @@ let currentTheme = "sepia";
 let currentFontSize = 100;
 let currentMargin = 20;
 let currentSpread = "none";
+let currentFontFamily = "serif";
+let currentPageTransition = "none";
 let uiVisible = true;
+
+const READER_SETTINGS_KEY = "reader_settings_v1";
+
+function saveReaderPreferences() {
+  const payload = {
+    theme: currentTheme,
+    fontSize: currentFontSize,
+    margin: currentMargin,
+    spread: currentSpread,
+    fontFamily: currentFontFamily,
+    pageTransition: currentPageTransition
+  };
+
+  localStorage.setItem(READER_SETTINGS_KEY, JSON.stringify(payload));
+}
+
+function loadReaderPreferences() {
+  try {
+    const raw = localStorage.getItem(READER_SETTINGS_KEY);
+    if (!raw) return;
+
+    const saved = JSON.parse(raw);
+
+    if (saved?.theme) currentTheme = saved.theme;
+    if (typeof saved?.fontSize === "number") currentFontSize = saved.fontSize;
+    if (typeof saved?.margin === "number") currentMargin = saved.margin;
+    if (saved?.spread) currentSpread = saved.spread;
+    if (saved?.fontFamily) currentFontFamily = saved.fontFamily;
+    if (saved?.pageTransition) currentPageTransition = saved.pageTransition;
+  } catch (error) {
+    console.warn("Nie udało się wczytać ustawień czytnika:", error);
+  }
+}
+
+function syncReaderControls() {
+  if (fontFamilySelect) {
+    fontFamilySelect.value = currentFontFamily;
+  }
+
+  if (pageTransitionSelect) {
+    pageTransitionSelect.value = currentPageTransition;
+  }
+}
+
 
 async function loadLibrary() {
   if (booksList) booksList.innerHTML = "<p>Ładowanie biblioteki...</p>";
@@ -271,6 +321,28 @@ function getThemeStyles(theme) {
   }
 }
 
+function getFontFamilyValue(fontKey) {
+  switch (fontKey) {
+    case "arial":
+      return 'Arial, Helvetica, sans-serif';
+    case "times":
+      return '"Times New Roman", Times, serif';
+    case "sans":
+      return 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    case "klee":
+      return '"Klee One", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif';
+    case "shippori":
+      return '"Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif';
+    case "bizud":
+      return '"BIZ UDPGothic", "BIZ UDGothic", "Hiragino Sans", "Yu Gothic", sans-serif';
+    case "notoserifjp":
+      return '"Noto Serif JP", "Source Han Serif", "Hiragino Mincho ProN", "Yu Mincho", serif';
+    case "serif":
+    default:
+      return 'Georgia, "Times New Roman", serif';
+  }
+}
+
 function applyThemeSelectionUi() {
   themeButtons.forEach(btn => {
     btn.classList.toggle("active", btn.dataset.theme === currentTheme);
@@ -278,33 +350,78 @@ function applyThemeSelectionUi() {
 
   spreadOneBtn?.classList.toggle("active", currentSpread === "none");
   spreadTwoBtn?.classList.toggle("active", currentSpread === "always");
+
+  syncReaderControls();
 }
 
 function applyReaderSettings() {
   if (!rendition) return;
 
   const theme = getThemeStyles(currentTheme);
+  const selectedFontFamily = getFontFamilyValue(currentFontFamily);
 
   rendition.themes.default({
     body: {
       background: theme.background,
       color: theme.color,
-      "font-family": theme.fontFamily,
+      "font-family": selectedFontFamily,
       "line-height": "1.8",
-      padding: `${currentMargin}px`
+      padding: `${currentMargin}px`,
+      "word-break": "normal",
+      "overflow-wrap": "break-word",
+      "text-rendering": "optimizeLegibility",
+      "-webkit-font-smoothing": "antialiased"
     },
-    p: { color: theme.color },
-    div: { color: theme.color },
-    span: { color: theme.color },
-    h1: { color: theme.color },
-    h2: { color: theme.color },
-    h3: { color: theme.color },
-    h4: { color: theme.color },
-    h5: { color: theme.color },
-    h6: { color: theme.color },
-    li: { color: theme.color },
-    blockquote: { color: theme.color },
-    a: { color: theme.link }
+    html: {
+      background: theme.background
+    },
+    p: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    div: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    span: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    h1: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    h2: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    h3: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    h4: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    h5: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    h6: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    li: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    blockquote: {
+      color: theme.color,
+      "font-family": selectedFontFamily
+    },
+    a: {
+      color: theme.link
+    }
   });
 
   rendition.themes.fontSize(`${currentFontSize}%`);
@@ -315,11 +432,40 @@ function applyReaderSettings() {
     console.warn(error);
   }
 
+  applyTransitionClass();
   applyThemeSelectionUi();
+  saveReaderPreferences();
 
   requestAnimationFrame(() => {
     rendition?.resize();
   });
+}
+
+function applyTransitionClass() {
+  if (!viewer) return;
+
+  viewer.classList.remove(
+    "transition-none",
+    "transition-slide",
+    "transition-fade",
+    "transition-book"
+  );
+
+  switch (currentPageTransition) {
+    case "slide":
+      viewer.classList.add("transition-slide");
+      break;
+    case "fade":
+      viewer.classList.add("transition-fade");
+      break;
+    case "book":
+      viewer.classList.add("transition-book");
+      break;
+    case "none":
+    default:
+      viewer.classList.add("transition-none");
+      break;
+  }
 }
 
 function bindRenditionEvents(bookId) {
@@ -577,6 +723,44 @@ async function loadTableOfContents() {
     tocList.appendChild(entry);
   });
 }
+
+function setupSwipeNavigation() {
+  if (!viewer) return;
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
+
+  viewer.addEventListener("touchstart", (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }, { passive: true });
+
+  viewer.addEventListener("touchend", (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+
+    touchEndX = touch.clientX;
+    touchEndY = touch.clientY;
+
+    const dx = touchEndX - touchStartX;
+    const dy = touchEndY - touchStartY;
+
+    if (Math.abs(dx) < 50) return;
+    if (Math.abs(dy) > 80) return;
+
+    if (dx < 0) {
+      rendition?.next();
+    } else {
+      rendition?.prev();
+    }
+  }, { passive: true });
+}
+
 
 function showOnlySection(section) {
   readerLibraryPanel.classList.add("hidden");
