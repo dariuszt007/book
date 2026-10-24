@@ -871,6 +871,18 @@ spreadTwoBtn?.addEventListener("click", async () => {
   await rebuildRendition();
 });
 
+fontFamilySelect?.addEventListener("change", () => {
+  currentFontFamily = fontFamilySelect.value || "serif";
+  applyReaderSettings();
+});
+
+pageTransitionSelect?.addEventListener("change", () => {
+  currentPageTransition = pageTransitionSelect.value || "none";
+  applyTransitionClass();
+  saveReaderPreferences();
+});
+
+
 themeButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     currentTheme = btn.dataset.theme;
@@ -897,5 +909,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+loadReaderPreferences();
 applyThemeSelectionUi();
+syncReaderControls();
+applyTransitionClass();
+setupSwipeNavigation();
 loadLibrary();
