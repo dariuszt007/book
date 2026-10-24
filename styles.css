@@ -878,3 +878,26 @@ select {
     grid-column: 2 / 3;
   }
 }
+
+
+.viewer {
+  transition: background 0.22s ease, transform 0.22s ease, opacity 0.22s ease;
+  transform-origin: center center;
+}
+
+.viewer.transition-none {
+  transition: none;
+}
+
+.viewer.transition-slide {
+  transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.viewer.transition-fade {
+  transition: opacity 0.22s ease, background 0.22s ease;
+}
+
+.viewer.transition-book {
+  transition: transform 0.28s ease, box-shadow 0.28s ease, background 0.22s ease;
+  transform-origin: center center;
+}
