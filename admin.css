@@ -534,6 +534,26 @@ code {
   font-weight: 700;
 }
 
+.editor-tool-btn.is-active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+}
+
+.editor-tool-btn.is-active strong,
+.editor-tool-btn.is-active em,
+.editor-tool-btn.is-active u {
+  color: inherit;
+}
+
+.toolbar-dropdown__toggle.is-active {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
 .toolbar-dropdown__menu {
   position: absolute;
   top: calc(100% + 6px);
