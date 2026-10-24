@@ -1,155 +1,157 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Biblioteka EPUB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Biblioteka EPUB PRO</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 </head>
 <body>
-  <main class="app-shell">
-    <section id="libraryPage" class="page">
-      <header class="library-header">
-        <div>
-          <p class="eyebrow">Moja biblioteka</p>
-          <h1>Wybierz książkę</h1>
-        </div>
-        <button id="refreshLibraryBtn" class="ghost-btn" type="button">Odśwież</button>
-      </header>
+  <header class="topbar" id="mainTopbar">
+    <div>
+      <h1>Biblioteka EPUB PRO</h1>
+      <p class="subtitle">Kliknij książkę, aby otworzyć czytnik</p>
+    </div>
+    <nav class="topbar-actions">
+      <a class="btn secondary" href="admin.html">Panel administratora</a>
+    </nav>
+  </header>
 
-      <section class="library-filters">
-        <input id="searchBooksInput" type="search" placeholder="Szukaj książki, autora lub kategorii" />
-        <div class="filter-row">
+  <main class="library-page" id="libraryPage">
+    <section class="panel library-panel">
+      <div class="section-head">
+        <h2>Biblioteka</h2>
+        <button id="refreshLibraryBtn" class="btn">Odśwież</button>
+      </div>
+
+      <div class="library-toolbar">
+        <div class="toolbar-search">
+          <input id="searchBooksInput" type="text" placeholder="Szukaj książki..." />
+        </div>
+
+        <div class="toolbar-filters">
           <select id="categoryFilterSelect">
             <option value="">Wszystkie kategorie</option>
           </select>
+
           <select id="authorFilterSelect">
             <option value="">Wszyscy autorzy</option>
           </select>
+
           <select id="sortBooksSelect">
             <option value="title-asc">Tytuł A-Z</option>
             <option value="title-desc">Tytuł Z-A</option>
             <option value="author-asc">Autor A-Z</option>
             <option value="author-desc">Autor Z-A</option>
           </select>
-          <button id="resetFiltersBtn" class="ghost-btn" type="button">Reset</button>
+
+          <button id="resetFiltersBtn" class="btn secondary reset-filters-btn" type="button">Wyczyść filtry</button>
         </div>
-      </section>
-
-      <section id="booksList" class="books-grid"></section>
-    </section>
-
-    <section id="readerScreen" class="reader-screen hidden">
-      <header class="reader-topbar">
-        <div class="reader-book-meta">
-          <h2 id="readerBookTitle">Tytuł książki</h2>
-          <p id="readerBookAuthor">Autor</p>
-        </div>
-
-        <div class="reader-topbar-actions">
-          <span id="readingProgressText">Postęp: 0%</span>
-          <button id="openMenuBtn" class="ghost-btn" type="button">Menu</button>
-          <button id="closeReaderBtn" class="ghost-btn" type="button">Zamknij</button>
-        </div>
-      </header>
-
-      <div class="reader-stage">
-        <button id="prevPageBtn" class="nav-zone nav-zone-left" type="button" aria-label="Poprzednia strona"></button>
-
-        <div id="toggleUiZone" class="toggle-ui-zone">
-          <div id="viewer" class="viewer"></div>
-        </div>
-
-        <button id="nextPageBtn" class="nav-zone nav-zone-right" type="button" aria-label="Następna strona"></button>
       </div>
 
-      <aside id="menuDrawer" class="menu-drawer hidden">
-        <div class="drawer-header">
-          <h3>Menu czytnika</h3>
-          <button id="closeMenuBtn" class="ghost-btn" type="button">Zamknij</button>
-        </div>
+      <div class="welcome-box compact-welcome">
+        <p>Po kliknięciu książka otworzy się w pełnoekranowym czytniku EPUB.</p>
+      </div>
 
-        <div class="drawer-tab-buttons">
-          <button id="toggleLibraryBtn" class="drawer-tab-btn" type="button">Biblioteka</button>
-          <button id="toggleTocBtn" class="drawer-tab-btn" type="button">Spis treści</button>
-          <button id="toggleSettingsBtn" class="drawer-tab-btn" type="button">Ustawienia</button>
-        </div>
-
-        <div id="readerLibraryPanel" class="drawer-section hidden">
-          <h4>Biblioteka</h4>
-          <div id="readerBooksList" class="books-grid books-grid-drawer"></div>
-        </div>
-
-        <div id="tocPanel" class="drawer-section hidden">
-          <h4>Spis treści</h4>
-          <div id="tocList" class="toc-list"></div>
-        </div>
-
-        <div id="readerSettingsPanel" class="drawer-section hidden">
-          <div class="settings-inline-row">
-            <div class="settings-inline-field">
-              <label class="settings-inline-label" for="fontFamilySelect">Czcionka</label>
-              <select id="fontFamilySelect" class="settings-inline-select">
-                <option value="arial">Arial</option>
-                <option value="times">Times New Roman</option>
-                <option value="serif">Serif</option>
-                <option value="sans">Sans-Serif</option>
-                <option value="klee">クレー・ワン</option>
-                <option value="shippori">しっぽり明朝</option>
-                <option value="bizud">BIZ UDゴシック</option>
-                <option value="notoserifjp">源ノ明朝</option>
-              </select>
-            </div>
-
-            <div class="settings-inline-field">
-              <label class="settings-inline-label" for="pageTransitionSelect">Przejście</label>
-              <select id="pageTransitionSelect" class="settings-inline-select">
-                <option value="none">Standard</option>
-                <option value="slide">Slide</option>
-                <option value="fade">Fade</option>
-                <option value="book">Book</option>
-              </select>
-            </div>
-          </div>
-
-          <h4>Motywy i ustawienia</h4>
-
-          <div class="drawer-settings-controls">
-            <div class="segmented-group">
-              <button class="seg-btn seg-btn-large" id="fontMinusBtn" type="button">A</button>
-              <button class="seg-btn seg-btn-large" id="fontPlusBtn" type="button">A</button>
-            </div>
-
-            <div class="segmented-group">
-              <button class="seg-btn" id="spreadOneBtn" type="button">1 str.</button>
-              <button class="seg-btn" id="spreadTwoBtn" type="button">2 str.</button>
-            </div>
-          </div>
-
-          <div class="drawer-theme-grid">
-            <button class="theme-tile" data-theme="day" type="button">
-              <span class="theme-aa">Aa</span>
-              <span>Dzień</span>
-            </button>
-            <button class="theme-tile" data-theme="night" type="button">
-              <span class="theme-aa">Aa</span>
-              <span>Noc</span>
-            </button>
-            <button class="theme-tile" data-theme="sepia" type="button">
-              <span class="theme-aa">Aa</span>
-              <span>Sepia</span>
-            </button>
-            <button class="theme-tile" data-theme="console" type="button">
-              <span class="theme-aa">Aa</span>
-              <span>Console</span>
-            </button>
-          </div>
-        </div>
-      </aside>
+      <div id="booksList" class="books-list books-grid"></div>
     </section>
   </main>
 
-  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
-  <script src="reader.js"></script>
+  <section class="reader-screen hidden" id="readerScreen">
+    <div class="reader-overlay-top" id="readerTopBar">
+      <button id="closeReaderBtn" class="icon-btn" aria-label="Zamknij">✕</button>
+
+      <div class="reader-meta-compact">
+        <div id="readerBookTitle" class="reader-title">Tytuł książki</div>
+        <div id="readerBookAuthor" class="reader-author">Autor</div>
+      </div>
+
+      <button id="openMenuBtn" class="icon-btn" aria-label="Menu">☰</button>
+    </div>
+
+    <div class="reader-overlay-bottom" id="readerBottomBar">
+      <div id="readingProgressText" class="progress-text">Postęp: 0%</div>
+    </div>
+
+    <div class="reader-center-tap-zone" id="toggleUiZone"></div>
+
+    <div class="reader-content">
+      <div class="reader-stage">
+        <button id="prevPageBtn" class="tap-nav tap-nav-left" aria-label="Poprzednia strona"></button>
+        <div id="viewer" class="viewer"></div>
+        <button id="nextPageBtn" class="tap-nav tap-nav-right" aria-label="Następna strona"></button>
+      </div>
+
+      <aside id="menuDrawer" class="drawer hidden">
+        <div class="drawer-inner">
+          <div class="drawer-head">
+            <h3>Menu czytnika</h3>
+            <button id="closeMenuBtn" class="btn secondary">Zamknij</button>
+          </div>
+
+          <div class="drawer-actions">
+            <button id="toggleLibraryBtn" class="btn secondary">Biblioteka</button>
+            <button id="toggleTocBtn" class="btn secondary">Spis treści</button>
+            <button id="toggleSettingsBtn" class="btn secondary">Motywy i ustawienia</button>
+          </div>
+
+          <div id="readerLibraryPanel" class="drawer-section hidden">
+            <h4>Biblioteka</h4>
+            <div id="readerBooksList" class="books-list compact-books"></div>
+          </div>
+
+          <div id="tocPanel" class="drawer-section hidden">
+            <h4>Spis treści</h4>
+            <div id="tocList" class="toc-list"></div>
+          </div>
+
+          <div id="readerSettingsPanel" class="drawer-section hidden">
+
+
+            
+
+            <div class="drawer-settings-controls">
+              <div class="segmented-group">
+                <button id="fontMinusBtn" class="seg-btn" aria-label="Zmniejsz czcionkę">A</button>
+                <button id="fontPlusBtn" class="seg-btn seg-btn-large" aria-label="Zwiększ czcionkę">A</button>
+              </div>
+
+              <div class="segmented-group">
+                <button id="spreadOneBtn" class="seg-btn" aria-label="Widok jednej strony">1 str.</button>
+                <button id="spreadTwoBtn" class="seg-btn" aria-label="Widok dwóch stron">2 str.</button>
+              </div>
+            </div>
+
+            <div class="drawer-theme-grid">
+              <button class="theme-tile" data-theme="day">
+                <span class="theme-aa">Aa</span>
+                <span>Dzień</span>
+              </button>
+
+              <button class="theme-tile" data-theme="night">
+                <span class="theme-aa">Aa</span>
+                <span>Noc</span>
+              </button>
+
+              <button class="theme-tile active" data-theme="sepia">
+                <span class="theme-aa">Aa</span>
+                <span>Sepia</span>
+              </button>
+
+              <button class="theme-tile" data-theme="console">
+                <span class="theme-aa">Aa</span>
+                <span>Console</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script src="js/utils.js"></script>
+  <script src="js/reader.js"></script>
 </body>
 </html>
