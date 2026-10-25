@@ -163,66 +163,67 @@
         </div>
 
         <div class="editor-shell panel-inline-box">
-          <div id="editorToolbar" class="editor-toolbar">
-            <div class="toolbar-dropdown">
-              <button type="button" class="toolbar-dropdown__toggle" data-dropdown="textMenu">Tekst</button>
-              <div id="textMenu" class="toolbar-dropdown__menu" hidden>
-                <button type="button" class="editor-tool-btn" data-cmd="bold"><strong>B</strong></button>
-                <button type="button" class="editor-tool-btn" data-cmd="italic"><em>I</em></button>
-                <button type="button" class="editor-tool-btn" data-cmd="underline"><u>U</u></button>
-                <button type="button" class="editor-tool-btn" data-block="p">P</button>
-                <button type="button" class="editor-tool-btn" data-cmd="formatBlock" data-value="blockquote">Cytat</button>
-              </div>
-            </div>
+<div id="editorToolbar" class="editor-toolbar">
+  <div class="toolbar-dropdown">
+    <button class="toolbar-dropdown__toggle" type="button" data-dropdown="textMenu">Tekst</button>
+    <div id="textMenu" class="toolbar-dropdown__menu" hidden>
+      <button class="editor-tool-btn" type="button" data-cmd="bold">B</button>
+      <button class="editor-tool-btn" type="button" data-cmd="italic">I</button>
+      <button class="editor-tool-btn" type="button" data-cmd="underline">U</button>
+      <button class="editor-tool-btn" type="button" data-block="p">P</button>
+      <button class="editor-tool-btn" type="button" data-cmd="formatBlock" data-value="blockquote">Cytat</button>
+    </div>
+  </div>
 
-            <div class="toolbar-dropdown">
-              <button type="button" class="toolbar-dropdown__toggle" data-dropdown="headingMenu">H</button>
-              <div id="headingMenu" class="toolbar-dropdown__menu" hidden>
-                <button type="button" class="editor-tool-btn" data-block="h1">H1</button>
-                <button type="button" class="editor-tool-btn" data-block="h2">H2</button>
-                <button type="button" class="editor-tool-btn" data-block="h3">H3</button>
-                <button type="button" class="editor-tool-btn" data-block="h4">H4</button>
-              </div>
-            </div>
+  <div class="toolbar-dropdown">
+    <button class="toolbar-dropdown__toggle" type="button" data-dropdown="headingMenu">H</button>
+    <div id="headingMenu" class="toolbar-dropdown__menu" hidden>
+      <button class="editor-tool-btn" type="button" data-block="h1">H1</button>
+      <button class="editor-tool-btn" type="button" data-block="h2">H2</button>
+      <button class="editor-tool-btn" type="button" data-block="h3">H3</button>
+      <button class="editor-tool-btn" type="button" data-block="h4">H4</button>
+    </div>
+  </div>
 
-            <div class="toolbar-dropdown">
-              <button type="button" class="toolbar-dropdown__toggle" data-dropdown="listMenu">Lista</button>
-              <div id="listMenu" class="toolbar-dropdown__menu" hidden>
-                <button type="button" class="editor-tool-btn" data-cmd="insertUnorderedList">• Lista</button>
-                <button type="button" class="editor-tool-btn" data-cmd="insertOrderedList">1. Lista</button>
-              </div>
-            </div>
+  <div class="toolbar-dropdown">
+    <button class="toolbar-dropdown__toggle" type="button" data-dropdown="listMenu">Lista</button>
+    <div id="listMenu" class="toolbar-dropdown__menu" hidden>
+      <button class="editor-tool-btn" type="button" data-cmd="insertUnorderedList">• Lista</button>
+      <button class="editor-tool-btn" type="button" data-cmd="insertOrderedList">1. Lista</button>
+    </div>
+  </div>
 
-            <div class="toolbar-dropdown">
-              <button type="button" class="toolbar-dropdown__toggle" data-dropdown="alignMenu">Wyrównanie</button>
-              <div id="alignMenu" class="toolbar-dropdown__menu" hidden>
-                <button type="button" class="editor-tool-btn" data-cmd="justifyLeft">Lewo</button>
-                <button type="button" class="editor-tool-btn" data-cmd="justifyCenter">Środek</button>
-                <button type="button" class="editor-tool-btn" data-cmd="justifyRight">Prawo</button>
-                <button type="button" class="editor-tool-btn" data-cmd="justifyFull">Justuj</button>
-              </div>
-            </div>
+  <div class="toolbar-dropdown">
+    <button class="toolbar-dropdown__toggle" type="button" data-dropdown="alignMenu">Wyrównanie</button>
+    <div id="alignMenu" class="toolbar-dropdown__menu" hidden>
+      <button class="editor-tool-btn" type="button" data-cmd="justifyLeft">Lewo</button>
+      <button class="editor-tool-btn" type="button" data-cmd="justifyCenter">Środek</button>
+      <button class="editor-tool-btn" type="button" data-cmd="justifyRight">Prawo</button>
+      <button class="editor-tool-btn" type="button" data-cmd="justifyFull">Justuj</button>
+    </div>
+  </div>
 
-            <div class="toolbar-dropdown">
-              <button type="button" class="toolbar-dropdown__toggle" data-dropdown="imageMenu">Obraz</button>
-              <div id="imageMenu" class="toolbar-dropdown__menu toolbar-dropdown__menu--wide" hidden>
-                <button type="button" class="editor-tool-btn" id="insertImageBtn">Dodaj obraz</button>
-                <button type="button" class="editor-tool-btn" id="deleteImageBtn">Usuń obraz</button>
-                <button type="button" class="editor-tool-btn" id="alignImageLeftBtn">Lewo</button>
-                <button type="button" class="editor-tool-btn" id="alignImageCenterBtn">Środek</button>
-                <button type="button" class="editor-tool-btn" id="alignImageRightBtn">Prawo</button>
+  <div class="toolbar-dropdown">
+    <button class="toolbar-dropdown__toggle" type="button" data-dropdown="imageMenu">Obraz</button>
+    <div id="imageMenu" class="toolbar-dropdown__menu toolbar-dropdown__menu--wide" hidden>
+      <button id="insertImageBtn" class="editor-tool-btn" type="button">Dodaj obraz</button>
+      <button id="deleteImageBtn" class="editor-tool-btn" type="button">Usuń obraz</button>
+      <button id="alignImageLeftBtn" class="editor-tool-btn" type="button">Lewo</button>
+      <button id="alignImageCenterBtn" class="editor-tool-btn" type="button">Środek</button>
+      <button id="alignImageRightBtn" class="editor-tool-btn" type="button">Prawo</button>
 
-                <label class="editor-width-control">
-                  <span>Szer. px</span>
-                  <input id="imageWidthInput" type="number" min="40" step="10" placeholder="320" />
-                </label>
-                <button type="button" class="editor-tool-btn" id="applyImageWidthBtn">Ustaw</button>
-              </div>
-            </div>
+      <label class="editor-width-control">
+        <span>Szer. px</span>
+        <input id="imageWidthInput" type="number" min="40" step="10" value="320" />
+      </label>
 
-            <button type="button" class="editor-tool-btn" data-cmd="undo">Cofnij</button>
-            <button type="button" class="editor-tool-btn" data-cmd="redo">Ponów</button>
-          </div>
+      <button id="applyImageWidthBtn" class="editor-tool-btn" type="button">Ustaw</button>
+    </div>
+  </div>
+
+  <button class="editor-tool-btn" type="button" data-cmd="undo">Cofnij</button>
+  <button class="editor-tool-btn" type="button" data-cmd="redo">Ponów</button>
+</div>
 
           <div class="editor-workspace">
             <div
