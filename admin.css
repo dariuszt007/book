@@ -1044,3 +1044,11 @@ code {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.toolbar-dropdown__toggle.is-active,
+.editor-tool-btn.is-active {
+  background: linear-gradient(180deg, #7c5cff 0%, #5b3df5 100%);
+  color: #ffffff;
+  border-color: #5b3df5;
+  box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.18);
+}
