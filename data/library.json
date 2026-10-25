@@ -20,8 +20,17 @@
   "description": "",
   "cover": "covers/pies-baskervilleow.jpg",
   "epub": "books/pies-baskervilleow.epub"
+},
+    
+{
+  "id": "bocian-ktory-gotuje",
+  "title": "Bocian Który Gotuje",
+  "author": "Dariusz Aleksander Boczkowski",
+  "category": "Dla dzieci",
+  "description": "",
+  "cover": "covers/bocian-ktory-gotuje.jpg",
+  "epub": "books/bocian-ktory-gotuje.epub"
 }
-
 
     
   ]
