@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Panel administratora</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+  <header class="admin-topbar admin-topbar--compact">
+    <div class="admin-topbar__brand">
+      <p class="admin-eyebrow">Panel administratora</p>
+      <h1>Panel administratora</h1>
+      <p class="admin-topbar__text">Tworzenie, edycja, import i eksport książek EPUB / DOCX / ODT / HTML.</p>
+    </div>
+
+    <div class="admin-topbar__menu">
+      <button id="topbarMenuBtn" class="admin-menu-btn" type="button" aria-expanded="false" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div id="topbarDropdown" class="admin-topbar__dropdown" hidden>
+        <button id="goToStartBtn" class="admin-dropdown-link" type="button">Start</button>
+        <button id="saveDraftBtn" class="admin-dropdown-link" type="button">Zapisz roboczo</button>
+        <button id="loadDraftBtn" class="admin-dropdown-link" type="button">Wczytaj roboczy</button>
+        <a class="admin-dropdown-link" href="index.html">Czytnik</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-wizard">
+    <section id="startScreen" class="wizard-screen active-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="panel-box screen-shell">
+          <div class="section-heading section-heading--center">
+            <p class="section-kicker">START</p>
+            <h2>Od czego chcesz zacząć?</h2>
+            <p class="section-text">Wybierz jedną z trzech ścieżek i przejdź do pracy nad książką.</p>
+          </div>
+
+          <div class="start-actions-grid start-actions-grid--big">
+            <button id="startNewBookBtn" class="start-card" type="button">
+              <div class="start-card__icon">＋</div>
+              <div class="start-card__title">Nowa książka</div>
+              <div class="start-card__desc">Utwórz nowy projekt i przejdź od razu do edytora.</div>
+            </button>
+
+            <label class="start-card" for="importBookInput">
+              <div class="start-card__icon">⇪</div>
+              <div class="start-card__title">Import pliku</div>
+              <div class="start-card__desc">Zaimportuj EPUB, DOCX, ODT, HTML albo TXT.</div>
+            </label>
+            <input id="importBookInput" type="file" class="admin-hidden" accept=".epub,.docx,.odt,.html,.htm,.txt" />
+
+            <button id="openRepoBtn" class="start-card" type="button">
+              <div class="start-card__icon">☰</div>
+              <div class="start-card__title">Otwórz z repo</div>
+              <div class="start-card__desc">Otwórz istniejącą książkę i edytuj ją dalej.</div>
+            </button>
+          </div>
+
+          <textarea id="adminLogOutput" class="admin-textarea admin-log-hidden"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section id="repoScreen" class="wizard-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="screen-top-nav">
+          <button id="backFromRepoBtn" class="admin-btn admin-btn--ghost" type="button">Wróć</button>
+        </div>
+
+        <div class="panel-box screen-shell">
+          <div class="section-heading section-heading--split">
+            <div>
+              <p class="section-kicker">REPO</p>
+              <h2>Twoje książki</h2>
+              <p class="section-text">Wybierz książkę do edycji albo utwórz jej kopię roboczą.</p>
+            </div>
+            <div class="section-heading__actions">
+              <button id="refreshRepoBtn" class="admin-btn admin-btn--secondary" type="button">Odśwież</button>
+            </div>
+          </div>
+
+          <div class="repo-toolbar repo-toolbar--grid-v635">
+            <label class="field">
+              <span>Szukaj</span>
+              <input id="repoSearchInput" class="admin-input" type="text" placeholder="Tytuł, autor, opis..." />
+            </label>
+
+            <label class="field">
+              <span>Autor</span>
+              <input id="repoAuthorFilterInput" class="admin-input" type="text" placeholder="Filtruj po autorze..." />
+            </label>
+
+            <label class="field repo-sort-field">
+              <span>Sortowanie</span>
+              <select id="repoSortSelect" class="admin-select">
+                <option value="title-asc">Tytuł A-Z</option>
+                <option value="title-desc">Tytuł Z-A</option>
+                <option value="author-asc">Autor A-Z</option>
+                <option value="author-desc">Autor Z-A</option>
+                <option value="category-asc">Kategoria A-Z</option>
+                <option value="category-desc">Kategoria Z-A</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="repoBooksList" class="repo-books-list">
+            <div class="empty-state">Lista książek z repo pojawi się tutaj.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contentScreen" class="wizard-screen">
+      <div class="screen-shell screen-shell--editor-v63 panel-box">
+        <div class="content-screen-top">
+          <div class="screen-top-nav screen-top-nav--split">
+            <button id="backFromContentBtn" class="admin-btn admin-btn--ghost" type="button">Wstecz</button>
+            <button id="goToChaptersBtn" class="admin-btn admin-btn--primary" type="button">Rozdziały</button>
+          </div>
+
+          <div class="content-screen-top__row content-screen-top__row--switcher">
+            <button id="prevChapterBtn" class="admin-btn admin-btn--secondary chapter-nav-btn" type="button">◀</button>
+
+            <label class="field field--no-margin">
+              <span>Rozdział</span>
+              <select id="chapterSelect" class="admin-select"></select>
+            </label>
+
+            <button id="nextChapterBtn" class="admin-btn admin-btn--secondary chapter-nav-btn" type="button">▶</button>
+          </div>
+        </div>
+
+        <div class="editor-shell panel-inline-box">
+          <div id="editorToolbar" class="editor-toolbar">
+            <div class="toolbar-dropdown">
+              <button class="toolbar-dropdown__toggle" type="button" data-dropdown="textMenu">Tekst</button>
+              <div id="textMenu" class="toolbar-dropdown__menu" hidden>
+                <button class="editor-tool-btn" type="button" data-cmd="bold">B</button>
+                <button class="editor-tool-btn" type="button" data-cmd="italic">I</button>
+                <button class="editor-tool-btn" type="button" data-cmd="underline">U</button>
+                <button class="editor-tool-btn" type="button" data-block="p">P</button>
+                <button class="editor-tool-btn" type="button" data-cmd="formatBlock" data-value="blockquote">Cytat</button>
+              </div>
+            </div>
+
+            <div class="toolbar-dropdown">
+              <button class="toolbar-dropdown__toggle" type="button" data-dropdown="headingMenu">H</button>
+              <div id="headingMenu" class="toolbar-dropdown__menu" hidden>
+                <button class="editor-tool-btn" type="button" data-block="h1">H1</button>
+                <button class="editor-tool-btn" type="button" data-block="h2">H2</button>
+                <button class="editor-tool-btn" type="button" data-block="h3">H3</button>
+                <button class="editor-tool-btn" type="button" data-block="h4">H4</button>
+              </div>
+            </div>
+
+            <div class="toolbar-dropdown">
+              <button class="toolbar-dropdown__toggle" type="button" data-dropdown="listMenu">Lista</button>
+              <div id="listMenu" class="toolbar-dropdown__menu" hidden>
+                <button class="editor-tool-btn" type="button" data-cmd="insertUnorderedList">• Lista</button>
+                <button class="editor-tool-btn" type="button" data-cmd="insertOrderedList">1. Lista</button>
+              </div>
+            </div>
+
+            <div class="toolbar-dropdown">
+              <button class="toolbar-dropdown__toggle" type="button" data-dropdown="alignMenu">Wyrównanie</button>
+              <div id="alignMenu" class="toolbar-dropdown__menu" hidden>
+                <button class="editor-tool-btn" type="button" data-cmd="justifyLeft">Lewo</button>
+                <button class="editor-tool-btn" type="button" data-cmd="justifyCenter">Środek</button>
+                <button class="editor-tool-btn" type="button" data-cmd="justifyRight">Prawo</button>
+                <button class="editor-tool-btn" type="button" data-cmd="justifyFull">Justuj</button>
+              </div>
+            </div>
+
+            <div class="toolbar-dropdown">
+              <button class="toolbar-dropdown__toggle" type="button" data-dropdown="imageMenu">Obraz</button>
+              <div id="imageMenu" class="toolbar-dropdown__menu toolbar-dropdown__menu--wide" hidden>
+                <button id="insertImageBtn" class="editor-tool-btn" type="button">Dodaj obraz</button>
+                <button id="deleteImageBtn" class="editor-tool-btn" type="button">Usuń obraz</button>
+                <button id="alignImageLeftBtn" class="editor-tool-btn" type="button">Lewo</button>
+                <button id="alignImageCenterBtn" class="editor-tool-btn" type="button">Środek</button>
+                <button id="alignImageRightBtn" class="editor-tool-btn" type="button">Prawo</button>
+
+                <label class="editor-width-control">
+                  <span>Szer. px</span>
+                  <input id="imageWidthInput" type="number" min="40" step="10" value="320" />
+                </label>
+
+                <button id="applyImageWidthBtn" class="editor-tool-btn" type="button">Ustaw</button>
+              </div>
+            </div>
+
+            <button class="editor-tool-btn" type="button" data-cmd="undo">Cofnij</button>
+            <button class="editor-tool-btn" type="button" data-cmd="redo">Ponów</button>
+          </div>
+
+          <div class="editor-workspace">
+            <div id="bookEditor" class="book-editor" contenteditable="true" spellcheck="true"></div>
+          </div>
+        </div>
+
+        <input id="inlineImageInput" class="admin-hidden" type="file" accept="image/*" />
+        <textarea id="chapterHtmlInput" class="admin-hidden"></textarea>
+        <input id="chapterTitleInput" class="admin-hidden" type="text" />
+      </div>
+    </section>
+
+    <section id="chaptersScreen" class="wizard-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="screen-top-nav screen-top-nav--split">
+          <button id="backToContentBtn" class="admin-btn admin-btn--ghost" type="button">Wstecz: treść</button>
+          <button id="goToCoverBtn" class="admin-btn admin-btn--primary" type="button">Dalej: okładka</button>
+        </div>
+
+        <div class="panel-box screen-shell">
+          <div class="section-heading section-heading--split">
+            <div>
+              <p class="section-kicker">ROZDZIAŁY</p>
+              <h2>Zarządzaj strukturą książki</h2>
+              <p class="section-text">Dodawaj, wybieraj, duplikuj, usuwaj i przeciągaj rozdziały.</p>
+            </div>
+            <div class="section-heading__actions">
+              <button id="addChapterBtn" class="admin-btn admin-btn--primary" type="button">Dodaj rozdział</button>
+            </div>
+          </div>
+
+          <div class="chapters-manager-layout">
+            <div class="panel-inline-box chapters-manager-panel">
+              <div class="chapter-sidebar__head">
+                <h3>Lista rozdziałów</h3>
+                <p>Przytrzymaj i przeciągnij, aby zmienić kolejność.</p>
+              </div>
+
+              <div class="chapter-sidebar__actions chapter-sidebar__actions--compact">
+                <button id="duplicateChapterBtn" class="admin-btn admin-btn--secondary" type="button">Duplikuj</button>
+                <button id="deleteChapterBtn" class="admin-btn admin-btn--danger" type="button">Usuń</button>
+              </div>
+
+              <div id="chaptersList" class="chapters-list">
+                <div class="empty-state">Nie ma jeszcze rozdziałów.</div>
+              </div>
+            </div>
+
+            <div class="panel-inline-box chapter-code-panel">
+              <label class="field">
+                <span>HTML aktualnego rozdziału</span>
+                <textarea id="chapterHtmlMirror" class="admin-textarea admin-textarea--code admin-hidden"></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="coverScreen" class="wizard-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="screen-top-nav screen-top-nav--split">
+          <button id="backToChaptersBtn" class="admin-btn admin-btn--ghost" type="button">Wstecz: rozdziały</button>
+          <button id="goToMetadataBtn" class="admin-btn admin-btn--primary" type="button">Dalej: metadane</button>
+        </div>
+
+        <div class="panel-box screen-shell">
+          <div class="section-heading">
+            <p class="section-kicker">OKŁADKA</p>
+            <h2>Dodaj okładkę</h2>
+            <p class="section-text">Wybierz plik okładki dla książki.</p>
+          </div>
+
+          <div class="cover-stage">
+            <label class="field">
+              <span>Plik okładki</span>
+              <input id="coverInput" class="admin-input" type="file" accept="image/*" />
+            </label>
+
+            <div class="cover-preview-wrap">
+              <img id="coverPreview" class="cover-preview" alt="Podgląd okładki" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metadataScreen" class="wizard-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="screen-top-nav screen-top-nav--split">
+          <button id="backToCoverBtn" class="admin-btn admin-btn--ghost" type="button">Wstecz: okładka</button>
+          <button id="goToExportBtn" class="admin-btn admin-btn--primary" type="button">Dalej: eksport</button>
+        </div>
+
+        <div class="panel-box screen-shell">
+          <div class="section-heading">
+            <p class="section-kicker">METADANE</p>
+            <h2>Dane książki</h2>
+            <p class="section-text">Uzupełnij metadane potrzebne do eksportu i biblioteki.</p>
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <label class="field">
+              <span>Tytuł książki</span>
+              <input id="bookTitleInput" class="admin-input" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Autor</span>
+              <input id="bookAuthorInput" class="admin-input" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Kategoria</span>
+              <input id="bookCategoryInput" class="admin-input" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Język</span>
+              <input id="bookLanguageInput" class="admin-input" type="text" value="pl" />
+            </label>
+
+            <label class="field">
+              <span>Nazwa pliku okładki</span>
+              <input id="coverFileNameInput" class="admin-input" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Nazwa pliku eksportu</span>
+              <input id="bookFileNameInput" class="admin-input" type="text" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Opis książki</span>
+            <textarea id="bookDescriptionInput" class="admin-textarea"></textarea>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section id="exportScreen" class="wizard-screen">
+      <div class="screen-shell screen-shell--centered">
+        <div class="screen-top-nav">
+          <button id="backToMetadataBtn" class="admin-btn admin-btn--ghost" type="button">Wstecz: metadane</button>
+        </div>
+
+        <div class="panel-box screen-shell">
+          <div class="section-heading">
+            <p class="section-kicker">EKSPORT</p>
+            <h2>Zapisz i wyeksportuj</h2>
+            <p class="section-text">Pobierz książkę w EPUB, ODT, DOCX, HTML albo skopiuj wpis do biblioteki.</p>
+          </div>
+
+          <div class="project-summary-box">
+            <div class="project-summary-box__header">
+              <h3>Aktualny projekt</h3>
+              <p>Podstawowe informacje o książce przed eksportem.</p>
+            </div>
+
+            <div class="project-summary-grid">
+              <div class="summary-item">
+                <span class="summary-item__label">Tytuł</span>
+                <strong id="currentProjectTitle">Brak projektu</strong>
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-item__label">Autor</span>
+                <strong id="currentProjectAuthor">—</strong>
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-item__label">Źródło</span>
+                <strong id="currentProjectSource">Nowy projekt / import / repo</strong>
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-item__label">Liczba rozdziałów</span>
+                <strong id="currentProjectChapterCount">0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="export-grid export-grid--stable">
+            <div class="export-card">
+              <h3>Eksport EPUB</h3>
+              <p>EPUB z obrazami w osobnych plikach w <code>OEBPS/images/</code>.</p>
+              <button id="exportEpubBtn" class="admin-btn admin-btn--primary export-action-btn" type="button">Eksportuj EPUB</button>
+            </div>
+
+            <div class="export-card">
+              <h3>Eksport ODT</h3>
+              <p>Dokument ODT dla LibreOffice i zgodnych edytorów.</p>
+              <button id="exportOdtBtn" class="admin-btn admin-btn--secondary export-action-btn" type="button">Eksportuj ODT</button>
+            </div>
+
+            <div class="export-card">
+              <h3>Eksport DOCX</h3>
+              <p>Dokument DOCX do otwierania i edycji w Microsoft Word.</p>
+              <button id="exportDocxBtn" class="admin-btn admin-btn--secondary export-action-btn" type="button">Eksportuj DOCX</button>
+            </div>
+
+            <div class="export-card">
+              <h3>Eksport HTML</h3>
+              <p>Całą książkę jako jeden dokument HTML.</p>
+              <button id="exportHtmlBtn" class="admin-btn admin-btn--secondary export-action-btn" type="button">Eksportuj HTML</button>
+            </div>
+
+            <div class="export-card">
+              <h3>Wpis do library.json</h3>
+              <p>Skopiuj gotowy wpis do tablicy <code>books</code>.</p>
+              <button id="copyLibraryEntryBtn" class="admin-btn admin-btn--secondary export-action-btn" type="button">Kopiuj wpis</button>
+            </div>
+          </div>
+
+          <div class="wizard-nav">
+            <button id="finishToStartBtn" class="admin-btn admin-btn--ghost" type="button">Zakończ</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
