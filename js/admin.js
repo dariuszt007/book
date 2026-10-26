@@ -911,7 +911,80 @@ function collectChapterImagesAndRewrite(html, chapterIndex, imageRegistry) {
 }
 
 
-TUTAJ_1
+function sanitizeChapterNodeForExport(node, doc) {
+  if (!node) return null;
+
+  const ELEMENT_NODE = 1;
+  const TEXT_NODE = 3;
+
+  if (node.nodeType === TEXT_NODE) {
+    return doc.createTextNode(node.textContent || "");
+  }
+
+  if (node.nodeType !== ELEMENT_NODE) {
+    return null;
+  }
+
+  const tag = node.tagName.toLowerCase();
+
+  if (tag === "img") {
+    const wrapper = doc.createElement("div");
+    const cleanImg = doc.createElement("img");
+    cleanImg.setAttribute("src", node.getAttribute("src") || "");
+    cleanImg.setAttribute("alt", node.getAttribute("alt") || "");
+
+    let style = node.getAttribute("style") || "";
+    if (!/display\s*:/i.test(style)) style += "display:block;";
+    if (!/height\s*:/i.test(style)) style += "height:auto;";
+    if (!/max-width\s*:/i.test(style)) style += "max-width:100%;";
+    cleanImg.setAttribute("style", style);
+
+    wrapper.appendChild(cleanImg);
+    return wrapper;
+  }
+
+  const allowed = new Set([
+    "p", "h1", "h2", "h3", "h4", "h5", "h6",
+    "ul", "ol", "li", "blockquote",
+    "strong", "b", "em", "i", "u", "br",
+    "div", "section", "article"
+  ]);
+
+  if (!allowed.has(tag)) {
+    const frag = doc.createDocumentFragment();
+    Array.from(node.childNodes).forEach((child) => {
+      const cleanChild = sanitizeChapterNodeForExport(child, doc);
+      if (cleanChild) frag.appendChild(cleanChild);
+    });
+    return frag;
+  }
+
+  const clean = doc.createElement(tag);
+
+  let style = "";
+  const sourceStyle = node.getAttribute("style") || "";
+
+  const textAlignMatch = sourceStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
+  if (textAlignMatch) {
+    style += `text-align:${textAlignMatch[1].toLowerCase()};`;
+  }
+
+  if (tag === "blockquote") {
+    style += "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;";
+  }
+
+  if (style) {
+    clean.setAttribute("style", style);
+  }
+
+  Array.from(node.childNodes).forEach((child) => {
+    const cleanChild = sanitizeChapterNodeForExport(child, doc);
+    if (cleanChild) clean.appendChild(cleanChild);
+  });
+
+  return clean;
+}
+
 
 
 function serializeChapterToXhtmlBody(html) {
@@ -1242,7 +1315,23 @@ async function exportEpub() {
   }
 }
 
-TUTAJ_2
+function getNodeTextAlign(node) {
+  if (!node || node.nodeType !== 1) return "left";
+
+  const inlineStyle = node.getAttribute("style") || "";
+  const inlineMatch = inlineStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
+  if (inlineMatch) {
+    return inlineMatch[1].toLowerCase();
+  }
+
+  const computed = window.getComputedStyle(node).textAlign;
+  if (["left", "right", "center", "justify"].includes(computed)) {
+    return computed;
+  }
+
+  return "left";
+}
+
 
 
 /* ---------- ODT ---------- */
