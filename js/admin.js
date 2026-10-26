@@ -90,6 +90,8 @@ const inlineImageInput = document.getElementById("inlineImageInput");
 const imageWidthInput = document.getElementById("imageWidthInput");
 const dropdownToggles = document.querySelectorAll("[data-dropdown]");
 
+const editorFullscreenBtn = document.getElementById("editorFullscreenBtn");
+
 let repoBooks = [];
 let currentChapterIndex = -1;
 let currentScreenKey = "start";
