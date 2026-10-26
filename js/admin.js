@@ -1415,9 +1415,9 @@ function buildOdtStylesXml() {
       <style:paragraph-properties fo:text-align="justify"/>
     </style:style>
 
-    <style:style style:name="Heading1" style:family="paragraph" style:parent-style-name="Standard">
-      <style:text-properties fo:font-size="18pt" fo:font-weight="bold"/>
+    <style:style style:name="Heading1" style:family="paragraph">
       <style:paragraph-properties fo:margin-top="0.5cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
+      <style:text-properties fo:font-size="18pt" fo:font-weight="bold"/>
     </style:style>
     <style:style style:name="Heading1Center" style:family="paragraph" style:parent-style-name="Heading1">
       <style:paragraph-properties fo:text-align="center"/>
@@ -1429,9 +1429,9 @@ function buildOdtStylesXml() {
       <style:paragraph-properties fo:text-align="justify"/>
     </style:style>
 
-    <style:style style:name="Heading2" style:family="paragraph" style:parent-style-name="Standard">
-      <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
+    <style:style style:name="Heading2" style:family="paragraph">
       <style:paragraph-properties fo:margin-top="0.4cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
+      <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
     </style:style>
     <style:style style:name="Heading2Center" style:family="paragraph" style:parent-style-name="Heading2">
       <style:paragraph-properties fo:text-align="center"/>
@@ -1443,9 +1443,9 @@ function buildOdtStylesXml() {
       <style:paragraph-properties fo:text-align="justify"/>
     </style:style>
 
-    <style:style style:name="Heading3" style:family="paragraph" style:parent-style-name="Standard">
-      <style:text-properties fo:font-size="14pt" fo:font-weight="bold"/>
+    <style:style style:name="Heading3" style:family="paragraph">
       <style:paragraph-properties fo:margin-top="0.3cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
+      <style:text-properties fo:font-size="14pt" fo:font-weight="bold"/>
     </style:style>
     <style:style style:name="Heading3Center" style:family="paragraph" style:parent-style-name="Heading3">
       <style:paragraph-properties fo:text-align="center"/>
@@ -1457,9 +1457,9 @@ function buildOdtStylesXml() {
       <style:paragraph-properties fo:text-align="justify"/>
     </style:style>
 
-    <style:style style:name="Heading4" style:family="paragraph" style:parent-style-name="Standard">
-      <style:text-properties fo:font-size="13pt" fo:font-weight="bold"/>
+    <style:style style:name="Heading4" style:family="paragraph">
       <style:paragraph-properties fo:margin-top="0.3cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
+      <style:text-properties fo:font-size="13pt" fo:font-weight="bold"/>
     </style:style>
     <style:style style:name="Heading4Center" style:family="paragraph" style:parent-style-name="Heading4">
       <style:paragraph-properties fo:text-align="center"/>
@@ -1486,16 +1486,18 @@ function buildOdtStylesXml() {
     </style:style>
 
     <style:style style:name="Bold" style:family="text">
-      <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
+      <style:text-properties fo:font-weight="bold"/>
     </style:style>
     <style:style style:name="Italic" style:family="text">
-      <style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic"/>
+      <style:text-properties fo:font-style="italic"/>
     </style:style>
     <style:style style:name="Underline" style:family="text">
-      <style:text-properties style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/>
+      <style:text-properties style:text-underline-style="solid"/>
     </style:style>
-  </office:styles>`;
+  </office:styles>
+</office:document-styles>`;
 }
+
 
 function buildOdtSettingsXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>
