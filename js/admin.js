@@ -3377,6 +3377,7 @@ function updateToolbarActiveState() {
   let hasHeadingStyle = false;
   let hasListStyle = false;
   let hasAlignStyle = false;
+  let hasLineHeightStyle = false;
 
   try {
     if (document.queryCommandState("bold")) {
@@ -3432,6 +3433,21 @@ function updateToolbarActiveState() {
   }
 
   const blockTag = findClosestBlockTag(node);
+
+    const activeLineHeight = getActiveLineHeight(node);
+  const normalizedLineHeight = (
+    Math.abs(parseFloat(activeLineHeight) - 1) < 0.03 ? "1" :
+    Math.abs(parseFloat(activeLineHeight) - 1.15) < 0.03 ? "1.15" :
+    Math.abs(parseFloat(activeLineHeight) - 1.5) < 0.05 ? "1.5" :
+    Math.abs(parseFloat(activeLineHeight) - 1.75) < 0.05 ? "1.75" :
+    Math.abs(parseFloat(activeLineHeight) - 2) < 0.05 ? "2" :
+    ""
+  );
+
+  if (normalizedLineHeight) {
+    setToolbarButtonActive(`[data-line-height="${normalizedLineHeight}"]`);
+    hasLineHeightStyle = true;
+  }
 
   if (blockTag === "blockquote") {
     setToolbarButtonActive('[data-cmd="formatBlock"][data-value="blockquote"]');
