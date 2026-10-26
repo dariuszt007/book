@@ -2747,7 +2747,15 @@ async function openRepoBook(book, duplicate = false) {
       : (epubPath.split("/").pop() || `${slugify(book.title || "book")}.epub`);
 
 
-    TUTAJ
+    const rawCoverPath = String(book.cover || "").trim();
+const repoCoverFileName = rawCoverPath ? rawCoverPath.split("/").pop() : "";
+
+project.cover = {
+  name: repoCoverFileName,
+  dataUrl: repoCoverFileName ? `/covers/${repoCoverFileName}` : ""
+};
+project.meta.coverFileName = repoCoverFileName || "";
+
 
 
     
