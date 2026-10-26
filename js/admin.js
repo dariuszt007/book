@@ -88,6 +88,7 @@ const editorToolbar = document.getElementById("editorToolbar");
 const bookEditor = document.getElementById("bookEditor");
 const inlineImageInput = document.getElementById("inlineImageInput");
 const imageWidthInput = document.getElementById("imageWidthInput");
+const editorFullscreenBtn = document.getElementById("editorFullscreenBtn");
 const dropdownToggles = document.querySelectorAll("[data-dropdown]");
 
 let repoBooks = [];
@@ -658,23 +659,6 @@ function fileToDataUrl(file) {
   });
 }
 
-async function urlToDataUrl(url) {
-  const response = await fetch(`${url}?v=${Date.now()}`, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`Nie udało się pobrać pliku: ${response.status} ${url}`);
-  }
-
-  const blob = await response.blob();
-
-  return await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
-
 function saveDraft() {
   persistCurrentChapter();
   saveMetaFromInputs();
@@ -747,7 +731,7 @@ function buildLibraryEntryObject() {
     author: project.meta.author || "",
     category: project.meta.category || "",
     description: project.meta.description || "",
-    cover: `covers/${coverName}`,
+    cover: `assets/covers/${coverName}`,
     epub: `books/${epubFile}`
   };
 }
@@ -910,7 +894,6 @@ function collectChapterImagesAndRewrite(html, chapterIndex, imageRegistry) {
   return source.innerHTML || "<p></p>";
 }
 
-
 function sanitizeChapterNodeForExport(node, doc) {
   if (!node) return null;
 
@@ -969,6 +952,11 @@ function sanitizeChapterNodeForExport(node, doc) {
     style += `text-align:${textAlignMatch[1].toLowerCase()};`;
   }
 
+  const lineHeightMatch = sourceStyle.match(/line-height\s*:\s*([0-9.]+)\s*;?/i);
+  if (lineHeightMatch) {
+    style += `line-height:${lineHeightMatch[1]};`;
+  }
+
   if (tag === "blockquote") {
     style += "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;";
   }
@@ -984,7 +972,6 @@ function sanitizeChapterNodeForExport(node, doc) {
 
   return clean;
 }
-
 
 function serializeChapterToXhtmlBody(html) {
   const source = document.createElement("div");
@@ -1063,6 +1050,7 @@ function exportHtml() {
   logMessage("Wyeksportowano HTML.");
 }
 
+/* ---------- EPUB ---------- */
 /* ---------- EPUB ---------- */
 
 function buildContainerXml() {
@@ -1314,36 +1302,6 @@ async function exportEpub() {
   }
 }
 
-function getOdtParagraphStyleName(baseStyle, align) {
-  const normalizedAlign = ["left", "center", "right", "justify"].includes(align) ? align : "left";
-
-  if (normalizedAlign === "left") return baseStyle;
-  if (normalizedAlign === "center") return `${baseStyle}Center`;
-  if (normalizedAlign === "right") return `${baseStyle}Right`;
-  if (normalizedAlign === "justify") return `${baseStyle}Justify`;
-
-  return baseStyle;
-}
-
-function getNodeTextAlign(node) {
-  if (!node || node.nodeType !== 1) return "left";
-
-  const inlineStyle = node.getAttribute("style") || "";
-  const inlineMatch = inlineStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
-  if (inlineMatch) {
-    return inlineMatch[1].toLowerCase();
-  }
-
-  const computed = window.getComputedStyle(node).textAlign;
-  if (["left", "right", "center", "justify"].includes(computed)) {
-    return computed;
-  }
-
-  return "left";
-}
-
-
-
 /* ---------- ODT ---------- */
 
 function buildOdtManifest(imageEntries, coverEntry) {
@@ -1498,7 +1456,6 @@ function buildOdtStylesXml() {
 </office:document-styles>`;
 }
 
-
 function buildOdtSettingsXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-settings
@@ -1506,6 +1463,34 @@ function buildOdtSettingsXml() {
   office:version="1.2">
   <office:settings/>
 </office:document-settings>`;
+}
+
+function getNodeTextAlign(node) {
+  if (!node || node.nodeType !== 1) return "left";
+
+  const inlineStyle = node.getAttribute("style") || "";
+  const inlineMatch = inlineStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
+  if (inlineMatch) {
+    return inlineMatch[1].toLowerCase();
+  }
+
+  const computed = window.getComputedStyle(node).textAlign;
+  if (["left", "right", "center", "justify"].includes(computed)) {
+    return computed;
+  }
+
+  return "left";
+}
+
+function getOdtParagraphStyleName(baseStyle, align) {
+  const normalizedAlign = ["left", "center", "right", "justify"].includes(align) ? align : "left";
+
+  if (normalizedAlign === "left") return baseStyle;
+  if (normalizedAlign === "center") return `${baseStyle}Center`;
+  if (normalizedAlign === "right") return `${baseStyle}Right`;
+  if (normalizedAlign === "justify") return `${baseStyle}Justify`;
+
+  return baseStyle;
 }
 
 function convertInlineNodeToOdt(node, imageRegistry, imageCounterRef) {
@@ -1678,7 +1663,6 @@ function convertBlockNodeToOdt(node, imageRegistry, imageCounterRef) {
   ).join("");
 }
 
-
 function buildOdtContentXml(imageRegistry, includeCoverRecord = null) {
   const imageCounterRef = { count: imageRegistry.size };
 
@@ -1817,7 +1801,6 @@ function xmlEscapeText(text) {
   return escapeXml(text).replace(/\n/g, "</w:t><w:br/><w:t>");
 }
 
-
 function createDocxParagraph(textRuns, style = null, opts = {}) {
   const { quote = false, list = false, numbered = false, align = "left" } = opts;
   const styleXml = style ? `<w:pStyle w:val="${style}"/>` : "";
@@ -1839,8 +1822,6 @@ function createDocxParagraph(textRuns, style = null, opts = {}) {
 
   return `<w:p><w:pPr>${styleXml}${indentXml}${spacingXml}${alignXml}${numPr}</w:pPr>${textRuns || `<w:r><w:t></w:t></w:r>`}</w:p>`;
 }
-
-
 
 function getDocxImageSizeFromStyle(styleText = "") {
   const widthMatch = String(styleText).match(/width\s*:\s*(\d+)px/i);
@@ -2034,9 +2015,6 @@ function convertBlockNodeToDocx(node, mediaRegistry) {
 
   return Array.from(node.childNodes).map((child) => convertBlockNodeToDocx(child, mediaRegistry)).join("");
 }
-
-
-
 
 function buildDocxDocumentXml(mediaRegistry) {
   const bodyParts = [];
@@ -2324,7 +2302,6 @@ async function exportDocx() {
     logMessage(`Błąd eksportu DOCX: ${error?.message || error}`);
   }
 }
-
 /* ---------- import helpers ---------- */
 
 function parseXml(xmlText) {
@@ -2351,7 +2328,7 @@ function convertDomNodeToHtml(node) {
 
   const tagName = node.localName ? node.localName.toLowerCase() : node.tagName.toLowerCase();
 
-  if (["h1","h2","h3","h4","h5","h6"].includes(tagName)) {
+  if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(tagName)) {
     return `<${tagName}>${Array.from(node.childNodes).map(convertDomNodeToHtml).join("")}</${tagName}>`;
   }
 
@@ -2359,7 +2336,7 @@ function convertDomNodeToHtml(node) {
     return `<p>${Array.from(node.childNodes).map(convertDomNodeToHtml).join("")}</p>`;
   }
 
-  if (["div","section","article","body","figure","figcaption"].includes(tagName)) {
+  if (["div", "section", "article", "body", "figure", "figcaption"].includes(tagName)) {
     return `<${tagName}>${Array.from(node.childNodes).map(convertDomNodeToHtml).join("")}</${tagName}>`;
   }
 
@@ -2664,7 +2641,7 @@ function convertOdtXmlToHtml(contentXml) {
   });
   html = html
     .replace(/&apos;/g, "'")
-    .replace(/&quot;/g, '"')
+    .replace(/&quot;/g, "\"")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&");
@@ -2882,7 +2859,6 @@ function renderRepoBooks(list) {
   });
 }
 
-
 async function openRepoBook(book, duplicate = false) {
   const epubPath = String(book.epub || "").trim();
   if (!epubPath) {
@@ -2927,42 +2903,11 @@ async function openRepoBook(book, duplicate = false) {
     project.meta.fileName = duplicate
       ? `${slugify(result.metadata?.title || book.title || "book")}.epub`
       : (epubPath.split("/").pop() || `${slugify(book.title || "book")}.epub`);
-
-
-
-    const rawCoverPath = String(book.cover || "").trim();
-const repoCoverFileName = rawCoverPath ? rawCoverPath.split("/").pop() : "";
-
-let coverPreviewUrl = "";
-if (rawCoverPath) {
-  if (rawCoverPath.startsWith("http://") || rawCoverPath.startsWith("https://") || rawCoverPath.startsWith("data:")) {
-    coverPreviewUrl = rawCoverPath;
-  } else {
-    coverPreviewUrl = rawCoverPath.replace(/^\/+/, "");
-  }
-}
-
-let coverDataUrl = "";
-if (coverPreviewUrl) {
-  try {
-    coverDataUrl = await urlToDataUrl(coverPreviewUrl);
-    logMessage(`Pobrano okładkę z repo do eksportu: ${coverPreviewUrl}`);
-  } catch (coverError) {
-    console.warn(coverError);
-    logMessage(`Nie udało się pobrać okładki z repo: ${coverPreviewUrl}`);
-  }
-}
-
-project.cover = {
-  name: repoCoverFileName,
-  dataUrl: coverDataUrl || coverPreviewUrl
-};
-project.meta.coverFileName = repoCoverFileName || "";
-
-
-
-
-    
+    project.cover = {
+      name: book.cover ? book.cover.split("/").pop() : "",
+      dataUrl: book.cover || ""
+    };
+    project.meta.coverFileName = project.cover.name || "";
     project.chapters = result.chapters?.length ? result.chapters : [createEmptyChapter(0)];
 
     currentChapterIndex = 0;
@@ -2982,10 +2927,6 @@ project.meta.coverFileName = repoCoverFileName || "";
     logMessage(`Błąd otwierania książki z repo: ${epubPath} | ${error?.message || error}`);
   }
 }
-
-
-
-
 
 function deleteRepoBook(book) {
   const confirmed = confirm(`Czy na pewno chcesz usunąć książkę "${book.title || "bez tytułu"}" z repo?`);
@@ -3210,7 +3151,6 @@ function deleteSelectedImage() {
   syncCurrentChapterFromEditor({ preserveCaret: true });
   logMessage("Usunięto zaznaczony obraz z treści.");
 }
-
 /* ---------- editor ---------- */
 
 function normalizeEditorMarkup() {
@@ -3289,6 +3229,94 @@ function getSelectionContainerNode() {
 
   if (!node || !bookEditor.contains(node)) return null;
   return node;
+}
+
+function getSelectionBlockElement() {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return null;
+
+  let node = selection.anchorNode;
+  if (!node) return null;
+
+  if (node.nodeType === Node.TEXT_NODE) {
+    node = node.parentElement;
+  }
+
+  if (!(node instanceof Element)) return null;
+
+  const block = node.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
+  if (!block || !bookEditor?.contains(block)) return null;
+
+  return block;
+}
+
+function getActiveLineHeight(node) {
+  let current = node;
+
+  while (current && current !== bookEditor) {
+    if (current.nodeType === Node.ELEMENT_NODE) {
+      const inlineStyle = current.getAttribute("style") || "";
+      const inlineMatch = inlineStyle.match(/line-height\s*:\s*([0-9.]+)/i);
+      if (inlineMatch) {
+        return inlineMatch[1];
+      }
+
+      const computed = window.getComputedStyle(current).lineHeight;
+      const fontSize = window.getComputedStyle(current).fontSize;
+
+      const computedPx = parseFloat(computed);
+      const fontPx = parseFloat(fontSize);
+
+      if (
+        Number.isFinite(computedPx) &&
+        Number.isFinite(fontPx) &&
+        fontPx > 0
+      ) {
+        const ratio = (computedPx / fontPx).toFixed(2);
+        return ratio;
+      }
+    }
+
+    current = current.parentNode;
+  }
+
+  return "1.6";
+}
+
+function applyLineHeightToSelection(value) {
+  const block = getSelectionBlockElement();
+  if (!block) {
+    alert("Ustaw kursor w akapicie lub nagłówku.");
+    return;
+  }
+
+  block.style.lineHeight = String(value);
+  rememberSelection();
+  syncCurrentChapterFromEditor({ preserveCaret: true });
+  updateToolbarActiveState();
+}
+
+function setEditorFullscreen(enabled) {
+  const editorShell = bookEditor?.closest(".editor-shell");
+  if (!editorShell) return;
+
+  editorShell.classList.toggle("is-fullscreen", !!enabled);
+  document.body.classList.toggle("editor-fullscreen-active", !!enabled);
+
+  if (editorFullscreenBtn) {
+    editorFullscreenBtn.classList.toggle("is-active-mode", !!enabled);
+    editorFullscreenBtn.textContent = enabled ? "Zamknij fullscreen" : "Fullscreen";
+  }
+
+  setTimeout(() => {
+    updateTopbarOffset();
+  }, 30);
+}
+
+function toggleEditorFullscreen() {
+  const editorShell = bookEditor?.closest(".editor-shell");
+  if (!editorShell) return;
+  setEditorFullscreen(!editorShell.classList.contains("is-fullscreen"));
 }
 
 function findClosestBlockTag(node) {
@@ -3377,6 +3405,7 @@ function updateToolbarActiveState() {
   let hasHeadingStyle = false;
   let hasListStyle = false;
   let hasAlignStyle = false;
+  let hasLineHeightStyle = false;
 
   try {
     if (document.queryCommandState("bold")) {
@@ -3433,6 +3462,21 @@ function updateToolbarActiveState() {
 
   const blockTag = findClosestBlockTag(node);
 
+  const activeLineHeight = getActiveLineHeight(node);
+  const normalizedLineHeight = (
+    Math.abs(parseFloat(activeLineHeight) - 1) < 0.03 ? "1" :
+    Math.abs(parseFloat(activeLineHeight) - 1.15) < 0.03 ? "1.15" :
+    Math.abs(parseFloat(activeLineHeight) - 1.5) < 0.05 ? "1.5" :
+    Math.abs(parseFloat(activeLineHeight) - 1.75) < 0.05 ? "1.75" :
+    Math.abs(parseFloat(activeLineHeight) - 2) < 0.05 ? "2" :
+    ""
+  );
+
+  if (normalizedLineHeight) {
+    setToolbarButtonActive(`[data-line-height="${normalizedLineHeight}"]`);
+    hasLineHeightStyle = true;
+  }
+
   if (blockTag === "blockquote") {
     setToolbarButtonActive('[data-cmd="formatBlock"][data-value="blockquote"]');
     hasTextStyle = true;
@@ -3477,6 +3521,10 @@ function updateToolbarActiveState() {
 
   if (hasAlignStyle) {
     setToolbarDropdownActive("alignMenu");
+  }
+
+  if (hasLineHeightStyle) {
+    setToolbarDropdownActive("lineHeightMenu");
   }
 }
 
@@ -3578,6 +3626,7 @@ function bindEditorToolbar() {
     const cmd = button.dataset.cmd;
     const block = button.dataset.block;
     const value = button.dataset.value || null;
+    const lineHeight = button.dataset.lineHeight || null;
 
     if (button.id === "insertImageBtn") {
       closeAllDropdowns();
@@ -3611,6 +3660,18 @@ function bindEditorToolbar() {
 
     if (button.id === "applyImageWidthBtn") {
       applyImageWidth();
+      closeAllDropdowns();
+      return;
+    }
+
+    if (lineHeight) {
+      applyLineHeightToSelection(lineHeight);
+      closeAllDropdowns();
+      return;
+    }
+
+    if (button.id === "editorFullscreenBtn") {
+      toggleEditorFullscreen();
       closeAllDropdowns();
       return;
     }
@@ -3899,6 +3960,9 @@ function goBackFromContent() {
 }
 
 function finishAndReturnToStart() {
+  if (bookEditor?.closest(".editor-shell")?.classList.contains("is-fullscreen")) {
+    setEditorFullscreen(false);
+  }
   showScreen("start");
   logMessage("Powrócono do ekranu startowego.");
 }
@@ -3933,6 +3997,11 @@ function bindEvents() {
     if (event.key === "Escape") {
       closeTopbarMenu();
       closeAllDropdowns();
+
+      const editorShell = bookEditor?.closest(".editor-shell");
+      if (editorShell?.classList.contains("is-fullscreen")) {
+        setEditorFullscreen(false);
+      }
     }
   });
 
@@ -4050,6 +4119,10 @@ function bindEvents() {
   });
 
   inlineImageInput?.addEventListener("change", handleInlineImageInsert);
+
+  editorFullscreenBtn?.addEventListener("click", () => {
+    toggleEditorFullscreen();
+  });
 
   addChapterBtn?.addEventListener("click", addChapter);
   duplicateChapterBtn?.addEventListener("click", duplicateCurrentChapter);
