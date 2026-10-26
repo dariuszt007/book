@@ -910,7 +910,6 @@ function collectChapterImagesAndRewrite(html, chapterIndex, imageRegistry) {
   return source.innerHTML || "<p></p>";
 }
 
-
 function sanitizeChapterNodeForExport(node, doc) {
   if (!node) return null;
 
@@ -961,20 +960,8 @@ function sanitizeChapterNodeForExport(node, doc) {
 
   const clean = doc.createElement(tag);
 
-  let style = "";
-  const sourceStyle = node.getAttribute("style") || "";
-
-  const textAlignMatch = sourceStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
-  if (textAlignMatch) {
-    style += `text-align:${textAlignMatch[1].toLowerCase()};`;
-  }
-
   if (tag === "blockquote") {
-    style += "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;";
-  }
-
-  if (style) {
-    clean.setAttribute("style", style);
+    clean.setAttribute("style", "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;");
   }
 
   Array.from(node.childNodes).forEach((child) => {
@@ -984,8 +971,6 @@ function sanitizeChapterNodeForExport(node, doc) {
 
   return clean;
 }
-
-
 
 function serializeChapterToXhtmlBody(html) {
   const source = document.createElement("div");
@@ -1315,25 +1300,6 @@ async function exportEpub() {
   }
 }
 
-function getNodeTextAlign(node) {
-  if (!node || node.nodeType !== 1) return "left";
-
-  const inlineStyle = node.getAttribute("style") || "";
-  const inlineMatch = inlineStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
-  if (inlineMatch) {
-    return inlineMatch[1].toLowerCase();
-  }
-
-  const computed = window.getComputedStyle(node).textAlign;
-  if (["left", "right", "center", "justify"].includes(computed)) {
-    return computed;
-  }
-
-  return "left";
-}
-
-
-
 /* ---------- ODT ---------- */
 
 function buildOdtManifest(imageEntries, coverEntry) {
@@ -1503,29 +1469,92 @@ function convertInlineNodeToOdt(node, imageRegistry, imageCounterRef) {
   ).join("");
 }
 
-function createDocxParagraph(textRuns, style = null, opts = {}) {
-  const { quote = false, list = false, numbered = false, align = "left" } = opts;
-  const styleXml = style ? `<w:pStyle w:val="${style}"/>` : "";
-  const indentXml = quote ? `<w:ind w:left="720" w:right="240"/>` : "";
-  const spacingXml = `<w:spacing w:after="160"/>`;
+function convertBlockNodeToOdt(node, imageRegistry, imageCounterRef) {
+  const TEXT_NODE = 3;
+  const ELEMENT_NODE = 1;
 
-  let alignXml = "";
-  if (align === "center") alignXml = `<w:jc w:val="center"/>`;
-  else if (align === "right") alignXml = `<w:jc w:val="right"/>`;
-  else if (align === "justify") alignXml = `<w:jc w:val="both"/>`;
-  else alignXml = `<w:jc w:val="left"/>`;
-
-  let numPr = "";
-  if (list) {
-    numPr = numbered
-      ? `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr>`
-      : `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>`;
+  if (node.nodeType === TEXT_NODE) {
+    const text = (node.textContent || "").trim();
+    if (!text) return "";
+    return `<text:p text:style-name="P1">${escapeXml(text)}</text:p>`;
   }
 
-  return `<w:p><w:pPr>${styleXml}${indentXml}${spacingXml}${alignXml}${numPr}</w:pPr>${textRuns || `<w:r><w:t></w:t></w:r>`}</w:p>`;
+  if (node.nodeType !== ELEMENT_NODE) return "";
+
+  const tag = node.tagName.toLowerCase();
+
+  if (tag === "p") {
+    return `<text:p text:style-name="P1">${Array.from(node.childNodes).map((child) =>
+      convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("")}</text:p>`;
+  }
+
+  if (tag === "h1") {
+    return `<text:h text:style-name="Heading1" text:outline-level="1">${Array.from(node.childNodes).map((child) =>
+      convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("")}</text:h>`;
+  }
+
+  if (tag === "h2") {
+    return `<text:h text:style-name="Heading2" text:outline-level="2">${Array.from(node.childNodes).map((child) =>
+      convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("")}</text:h>`;
+  }
+
+  if (tag === "h3") {
+    return `<text:h text:style-name="Heading3" text:outline-level="3">${Array.from(node.childNodes).map((child) =>
+      convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("")}</text:h>`;
+  }
+
+  if (tag === "h4") {
+    return `<text:h text:style-name="Heading4" text:outline-level="4">${Array.from(node.childNodes).map((child) =>
+      convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("")}</text:h>`;
+  }
+
+  if (tag === "blockquote") {
+    return `<text:p text:style-name="Quote">${Array.from(node.childNodes).map((child) =>
+      convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("")}</text:p>`;
+  }
+
+  if (tag === "ul") {
+    const items = Array.from(node.children).filter((child) => child.tagName?.toLowerCase() === "li");
+    return `<text:list>${items.map((li) => `
+      <text:list-item>
+        <text:p text:style-name="P1">${Array.from(li.childNodes).map((child) =>
+          convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+        ).join("")}</text:p>
+      </text:list-item>`).join("")}
+    </text:list>`;
+  }
+
+  if (tag === "ol") {
+    const items = Array.from(node.children).filter((child) => child.tagName?.toLowerCase() === "li");
+    return `<text:list text:style-name="L1">${items.map((li) => `
+      <text:list-item>
+        <text:p text:style-name="P1">${Array.from(li.childNodes).map((child) =>
+          convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
+        ).join("")}</text:p>
+      </text:list-item>`).join("")}
+    </text:list>`;
+  }
+
+  if (tag === "div" || tag === "section" || tag === "article") {
+    return Array.from(node.childNodes).map((child) =>
+      convertBlockNodeToOdt(child, imageRegistry, imageCounterRef)
+    ).join("");
+  }
+
+  if (tag === "img") {
+    return `<text:p text:style-name="P1">${convertInlineNodeToOdt(node, imageRegistry, imageCounterRef)}</text:p>`;
+  }
+
+  return Array.from(node.childNodes).map((child) =>
+    convertBlockNodeToOdt(child, imageRegistry, imageCounterRef)
+  ).join("");
 }
-
-
 
 function buildOdtContentXml(imageRegistry, includeCoverRecord = null) {
   const imageCounterRef = { count: imageRegistry.size };
@@ -1664,17 +1693,12 @@ async function exportOdt() {
 function xmlEscapeText(text) {
   return escapeXml(text).replace(/\n/g, "</w:t><w:br/><w:t>");
 }
+
 function createDocxParagraph(textRuns, style = null, opts = {}) {
-  const { quote = false, list = false, numbered = false, align = "left" } = opts;
+  const { quote = false, list = false, numbered = false } = opts;
   const styleXml = style ? `<w:pStyle w:val="${style}"/>` : "";
   const indentXml = quote ? `<w:ind w:left="720" w:right="240"/>` : "";
   const spacingXml = `<w:spacing w:after="160"/>`;
-
-  let alignXml = "";
-  if (align === "center") alignXml = `<w:jc w:val="center"/>`;
-  else if (align === "right") alignXml = `<w:jc w:val="right"/>`;
-  else if (align === "justify") alignXml = `<w:jc w:val="both"/>`;
-  else alignXml = `<w:jc w:val="left"/>`;
 
   let numPr = "";
   if (list) {
@@ -1683,12 +1707,8 @@ function createDocxParagraph(textRuns, style = null, opts = {}) {
       : `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>`;
   }
 
-  return `<w:p><w:pPr>${styleXml}${indentXml}${spacingXml}${alignXml}${numPr}</w:pPr>${textRuns || `<w:r><w:t></w:t></w:r>`}</w:p>`;
+  return `<w:p><w:pPr>${styleXml}${indentXml}${spacingXml}${numPr}</w:pPr>${textRuns || `<w:r><w:t></w:t></w:r>`}</w:p>`;
 }
-
-
-
-
 
 function getDocxImageSizeFromStyle(styleText = "") {
   const widthMatch = String(styleText).match(/width\s*:\s*(\d+)px/i);
