@@ -1314,6 +1314,16 @@ async function exportEpub() {
   }
 }
 
+function getOdtParagraphStyleName(baseStyle, align) {
+  const normalizedAlign = ["left", "center", "right", "justify"].includes(align) ? align : "left";
+
+  if (normalizedAlign === "left") return baseStyle;
+  if (normalizedAlign === "center") return `${baseStyle}Center`;
+  if (normalizedAlign === "right") return `${baseStyle}Right`;
+  if (normalizedAlign === "justify") return `${baseStyle}Justify`;
+
+  return baseStyle;
+}
 
 function getNodeTextAlign(node) {
   if (!node || node.nodeType !== 1) return "left";
