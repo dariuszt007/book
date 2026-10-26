@@ -3368,6 +3368,8 @@ function getActiveAlignment(node) {
   return "left";
 }
 
+
+
 function clearToolbarActiveState() {
   if (!editorToolbar) return;
 
@@ -3378,6 +3380,15 @@ function clearToolbarActiveState() {
   editorToolbar.querySelectorAll(".toolbar-dropdown__toggle.is-active").forEach((button) => {
     button.classList.remove("is-active");
   });
+  editorToolbar?.addEventListener("click", (event) => {
+  const btn = event.target.closest("[data-line-height]");
+  if (!btn) return;
+
+  const value = btn.getAttribute("data-line-height");
+  if (!value) return;
+
+  applyLineHeightToSelection(value);
+});
 }
 
 function setToolbarButtonActive(selector) {
