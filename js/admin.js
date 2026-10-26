@@ -770,6 +770,25 @@ async function copyLibraryEntry() {
 
 /* ---------- export helpers ---------- */
 
+function getSelectionBlockElement() {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return null;
+
+  let node = selection.anchorNode;
+  if (!node) return null;
+
+  if (node.nodeType === Node.TEXT_NODE) {
+    node = node.parentElement;
+  }
+
+  if (!(node instanceof Element)) return null;
+
+  const block = node.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
+  if (!block || !bookEditor.contains(block)) return null;
+
+  return block;
+}
+
 function parseDataUrl(dataUrl) {
   const match = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/);
   if (!match) return null;
