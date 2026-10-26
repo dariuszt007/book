@@ -1588,65 +1588,75 @@ function convertBlockNodeToOdt(node, imageRegistry, imageCounterRef) {
   const tag = node.tagName.toLowerCase();
   const align = getNodeTextAlign(node);
 
-  const paragraphStyleAttr = align !== "left"
-    ? ` fo:text-align="${align === "justify" ? "justify" : align}"`
-    : "";
-
   if (tag === "p") {
-    return `<text:p text:style-name="P1"${paragraphStyleAttr}>${Array.from(node.childNodes).map((child) =>
+    const styleName = getOdtParagraphStyleName("P1", align);
+    return `<text:p text:style-name="${styleName}">${Array.from(node.childNodes).map((child) =>
       convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
     ).join("")}</text:p>`;
   }
 
   if (tag === "h1") {
-    return `<text:h text:style-name="Heading1" text:outline-level="1"${paragraphStyleAttr}>${Array.from(node.childNodes).map((child) =>
+    const styleName = getOdtParagraphStyleName("Heading1", align);
+    return `<text:h text:style-name="${styleName}" text:outline-level="1">${Array.from(node.childNodes).map((child) =>
       convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
     ).join("")}</text:h>`;
   }
 
   if (tag === "h2") {
-    return `<text:h text:style-name="Heading2" text:outline-level="2"${paragraphStyleAttr}>${Array.from(node.childNodes).map((child) =>
+    const styleName = getOdtParagraphStyleName("Heading2", align);
+    return `<text:h text:style-name="${styleName}" text:outline-level="2">${Array.from(node.childNodes).map((child) =>
       convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
     ).join("")}</text:h>`;
   }
 
   if (tag === "h3") {
-    return `<text:h text:style-name="Heading3" text:outline-level="3"${paragraphStyleAttr}>${Array.from(node.childNodes).map((child) =>
+    const styleName = getOdtParagraphStyleName("Heading3", align);
+    return `<text:h text:style-name="${styleName}" text:outline-level="3">${Array.from(node.childNodes).map((child) =>
       convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
     ).join("")}</text:h>`;
   }
 
   if (tag === "h4") {
-    return `<text:h text:style-name="Heading4" text:outline-level="4"${paragraphStyleAttr}>${Array.from(node.childNodes).map((child) =>
+    const styleName = getOdtParagraphStyleName("Heading4", align);
+    return `<text:h text:style-name="${styleName}" text:outline-level="4">${Array.from(node.childNodes).map((child) =>
       convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
     ).join("")}</text:h>`;
   }
 
   if (tag === "blockquote") {
-    return `<text:p text:style-name="Quote"${paragraphStyleAttr}>${Array.from(node.childNodes).map((child) =>
+    const styleName = getOdtParagraphStyleName("Quote", align);
+    return `<text:p text:style-name="${styleName}">${Array.from(node.childNodes).map((child) =>
       convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
     ).join("")}</text:p>`;
   }
 
   if (tag === "ul") {
     const items = Array.from(node.children).filter((child) => child.tagName?.toLowerCase() === "li");
-    return `<text:list>${items.map((li) => `
+    return `<text:list>${items.map((li) => {
+      const liAlign = getNodeTextAlign(li);
+      const liStyle = getOdtParagraphStyleName("P1", liAlign);
+      return `
       <text:list-item>
-        <text:p text:style-name="P1">${Array.from(li.childNodes).map((child) =>
+        <text:p text:style-name="${liStyle}">${Array.from(li.childNodes).map((child) =>
           convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
         ).join("")}</text:p>
-      </text:list-item>`).join("")}
+      </text:list-item>`;
+    }).join("")}
     </text:list>`;
   }
 
   if (tag === "ol") {
     const items = Array.from(node.children).filter((child) => child.tagName?.toLowerCase() === "li");
-    return `<text:list text:style-name="L1">${items.map((li) => `
+    return `<text:list text:style-name="L1">${items.map((li) => {
+      const liAlign = getNodeTextAlign(li);
+      const liStyle = getOdtParagraphStyleName("P1", liAlign);
+      return `
       <text:list-item>
-        <text:p text:style-name="P1">${Array.from(li.childNodes).map((child) =>
+        <text:p text:style-name="${liStyle}">${Array.from(li.childNodes).map((child) =>
           convertInlineNodeToOdt(child, imageRegistry, imageCounterRef)
         ).join("")}</text:p>
-      </text:list-item>`).join("")}
+      </text:list-item>`;
+    }).join("")}
     </text:list>`;
   }
 
@@ -1657,14 +1667,14 @@ function convertBlockNodeToOdt(node, imageRegistry, imageCounterRef) {
   }
 
   if (tag === "img") {
-    return `<text:p text:style-name="P1"${paragraphStyleAttr}>${convertInlineNodeToOdt(node, imageRegistry, imageCounterRef)}</text:p>`;
+    const styleName = getOdtParagraphStyleName("P1", align);
+    return `<text:p text:style-name="${styleName}">${convertInlineNodeToOdt(node, imageRegistry, imageCounterRef)}</text:p>`;
   }
 
   return Array.from(node.childNodes).map((child) =>
     convertBlockNodeToOdt(child, imageRegistry, imageCounterRef)
   ).join("");
 }
-
 
 
 function buildOdtContentXml(imageRegistry, includeCoverRecord = null) {
