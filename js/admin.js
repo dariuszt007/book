@@ -747,7 +747,7 @@ function buildLibraryEntryObject() {
     author: project.meta.author || "",
     category: project.meta.category || "",
     description: project.meta.description || "",
-    cover: `assets/covers/${coverName}`,
+    cover: `covers/${coverName}`,
     epub: `books/${epubFile}`
   };
 }
