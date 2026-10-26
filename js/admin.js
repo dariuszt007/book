@@ -3596,9 +3596,25 @@ function bindEditorDropdowns() {
 function bindEditorToolbar() {
   if (!editorToolbar) return;
 
+
+  editorToolbar.addEventListener("mousedown", (event) => {
+  if (event.target.closest(".editor-tool-btn")) {
+    event.preventDefault();
+  }
+});
+
+editorToolbar.addEventListener("touchstart", (event) => {
+  if (event.target.closest(".editor-tool-btn")) {
+    event.preventDefault();
+  }
+}, { passive: false });
+
+
+  
   editorToolbar.addEventListener("click", (event) => {
     const button = event.target.closest(".editor-tool-btn");
     if (!button) return;
+    event.preventDefault();
 
     const cmd = button.dataset.cmd;
     const block = button.dataset.block;
