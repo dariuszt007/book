@@ -1649,7 +1649,7 @@ function convertBlockNodeToOdt(node, imageRegistry, imageCounterRef) {
 
   if (tag === "ol") {
     const items = Array.from(node.children).filter((child) => child.tagName?.toLowerCase() === "li");
-    return `<text:list text:style-name="L1">${items.map((li) => {
+    return `<text:list>${items.map((li) => {
       const liAlign = getNodeTextAlign(li);
       const liStyle = getOdtParagraphStyleName("P1", liAlign);
       return `
