@@ -1728,21 +1728,9 @@ function xmlEscapeText(text) {
   return escapeXml(text).replace(/\n/g, "</w:t><w:br/><w:t>");
 }
 
-function createDocxParagraph(textRuns, style = null, opts = {}) {
-  const { quote = false, list = false, numbered = false } = opts;
-  const styleXml = style ? `<w:pStyle w:val="${style}"/>` : "";
-  const indentXml = quote ? `<w:ind w:left="720" w:right="240"/>` : "";
-  const spacingXml = `<w:spacing w:after="160"/>`;
 
-  let numPr = "";
-  if (list) {
-    numPr = numbered
-      ? `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr>`
-      : `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>`;
-  }
+TUTAJ_3a
 
-  return `<w:p><w:pPr>${styleXml}${indentXml}${spacingXml}${numPr}</w:pPr>${textRuns || `<w:r><w:t></w:t></w:r>`}</w:p>`;
-}
 
 function getDocxImageSizeFromStyle(styleText = "") {
   const widthMatch = String(styleText).match(/width\s*:\s*(\d+)px/i);
