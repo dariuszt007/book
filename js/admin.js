@@ -3593,37 +3593,65 @@ function bindEditorDropdowns() {
   });
 }
 
+
+
 function bindEditorToolbar() {
   if (!editorToolbar) return;
 
-
   editorToolbar.addEventListener("mousedown", (event) => {
-  if (event.target.closest(".editor-tool-btn")) {
-    event.preventDefault();
-  }
-});
+    if (
+      event.target.closest(".editor-tool-btn") ||
+      event.target.closest(".toolbar-dropdown__toggle")
+    ) {
+      event.preventDefault();
+    }
+  });
 
-editorToolbar.addEventListener("touchstart", (event) => {
-  if (event.target.closest(".editor-tool-btn")) {
-    event.preventDefault();
-  }
-}, { passive: false });
+  editorToolbar.addEventListener("touchstart", (event) => {
+    if (
+      event.target.closest(".editor-tool-btn") ||
+      event.target.closest(".toolbar-dropdown__toggle")
+    ) {
+      event.preventDefault();
+    }
+  }, { passive: false });
 
-
-  
   editorToolbar.addEventListener("click", (event) => {
+    const dropdownToggle = event.target.closest(".toolbar-dropdown__toggle");
+
+    if (dropdownToggle) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleDropdown(dropdownToggle.dataset.dropdown);
+      return;
+    }
+
     const button = event.target.closest(".editor-tool-btn");
     if (!button) return;
+
     event.preventDefault();
+    event.stopPropagation();
 
     const cmd = button.dataset.cmd;
     const block = button.dataset.block;
     const value = button.dataset.value || null;
     const lineHeight = button.dataset.lineHeight || null;
 
-    if (button.id === "insertImageBtn") {
+    if (lineHeight) {
+      applyLineHeightToSelection(lineHeight);
       closeAllDropdowns();
+      return;
+    }
+
+    if (block) {
+      setBlock(block);
+      closeAllDropdowns();
+      return;
+    }
+
+    if (button.id === "insertImageBtn") {
       inlineImageInput?.click();
+      closeAllDropdowns();
       return;
     }
 
@@ -3634,37 +3662,25 @@ editorToolbar.addEventListener("touchstart", (event) => {
     }
 
     if (button.id === "alignImageLeftBtn") {
-      setActiveImageAlignment("left");
+      alignSelectedImage("left");
       closeAllDropdowns();
       return;
     }
 
     if (button.id === "alignImageCenterBtn") {
-      setActiveImageAlignment("center");
+      alignSelectedImage("center");
       closeAllDropdowns();
       return;
     }
 
     if (button.id === "alignImageRightBtn") {
-      setActiveImageAlignment("right");
+      alignSelectedImage("right");
       closeAllDropdowns();
       return;
     }
 
     if (button.id === "applyImageWidthBtn") {
-      applyImageWidth();
-      closeAllDropdowns();
-      return;
-    }
-
-    if (lineHeight) {
-      applyLineHeightToSelection(lineHeight);
-      closeAllDropdowns();
-      return;
-    }
-
-    if (block) {
-      setBlock(block);
+      applySelectedImageWidth();
       closeAllDropdowns();
       return;
     }
