@@ -658,7 +658,22 @@ function fileToDataUrl(file) {
   });
 }
 
-TUTAJ_1
+async function urlToDataUrl(url) {
+  const response = await fetch(`${url}?v=${Date.now()}`, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Nie udało się pobrać pliku: ${response.status} ${url}`);
+  }
+
+  const blob = await response.blob();
+
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 
 function saveDraft() {
   persistCurrentChapter();
