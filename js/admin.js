@@ -3662,11 +3662,35 @@ function bindEditorToolbar() {
 
 /* ---------- drag ---------- */
 function applyLineHeightToSelection(value) {
-  const block = getSelectionBlockElement();
+  if (!bookEditor) return;
+
+  bookEditor.focus();
+  restoreSelection();
+
+  let block = getSelectionBlockElement();
+
   if (!block) {
-    alert("Ustaw kursor w akapicie lub nagłówku.");
+    const node = getSelectionContainerNode();
+    if (node && node.nodeType === Node.ELEMENT_NODE) {
+      block = node.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
+    }
+  }
+
+  if (!block && bookEditor.lastElementChild instanceof Element) {
+    block = bookEditor.lastElementChild.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
+  }
+
+  if (!block || !bookEditor.contains(block)) {
+    alert("Najpierw ustaw kursor w akapicie.");
     return;
   }
+
+  block.style.lineHeight = String(value);
+
+  rememberSelection();
+  syncCurrentChapterFromEditor({ preserveCaret: true });
+  updateToolbarActiveState();
+}
 
   block.style.lineHeight = String(value);
   rememberSelection();
