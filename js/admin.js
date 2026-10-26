@@ -3661,6 +3661,18 @@ function bindEditorToolbar() {
 }
 
 /* ---------- drag ---------- */
+function applyLineHeightToSelection(value) {
+  const block = getSelectionBlockElement();
+  if (!block) {
+    alert("Ustaw kursor w akapicie lub nagłówku.");
+    return;
+  }
+
+  block.style.lineHeight = String(value);
+  rememberSelection();
+  syncCurrentChapterFromEditor({ preserveCaret: true });
+  updateToolbarActiveState();
+}
 
 function createTouchPlaceholder() {
   const placeholder = document.createElement("div");
