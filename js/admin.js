@@ -1643,9 +1643,30 @@ async function exportOdt() {
 function xmlEscapeText(text) {
   return escapeXml(text).replace(/\n/g, "</w:t><w:br/><w:t>");
 }
+function createDocxParagraph(textRuns, style = null, opts = {}) {
+  const { quote = false, list = false, numbered = false, align = "left" } = opts;
+  const styleXml = style ? `<w:pStyle w:val="${style}"/>` : "";
+  const indentXml = quote ? `<w:ind w:left="720" w:right="240"/>` : "";
+  const spacingXml = `<w:spacing w:after="160"/>`;
+
+  let alignXml = "";
+  if (align === "center") alignXml = `<w:jc w:val="center"/>`;
+  else if (align === "right") alignXml = `<w:jc w:val="right"/>`;
+  else if (align === "justify") alignXml = `<w:jc w:val="both"/>`;
+  else alignXml = `<w:jc w:val="left"/>`;
+
+  let numPr = "";
+  if (list) {
+    numPr = numbered
+      ? `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr>`
+      : `<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>`;
+  }
+
+  return `<w:p><w:pPr>${styleXml}${indentXml}${spacingXml}${alignXml}${numPr}</w:pPr>${textRuns || `<w:r><w:t></w:t></w:r>`}</w:p>`;
+}
 
 
-TUTAJ_3a
+
 
 
 function getDocxImageSizeFromStyle(styleText = "") {
