@@ -2766,7 +2766,35 @@ async function openRepoBook(book, duplicate = false) {
 
 
 
-    TUTAJ_2
+    const rawCoverPath = String(book.cover || "").trim();
+const repoCoverFileName = rawCoverPath ? rawCoverPath.split("/").pop() : "";
+
+let coverPreviewUrl = "";
+if (rawCoverPath) {
+  if (rawCoverPath.startsWith("http://") || rawCoverPath.startsWith("https://") || rawCoverPath.startsWith("data:")) {
+    coverPreviewUrl = rawCoverPath;
+  } else {
+    coverPreviewUrl = rawCoverPath.replace(/^\/+/, "");
+  }
+}
+
+let coverDataUrl = "";
+if (coverPreviewUrl) {
+  try {
+    coverDataUrl = await urlToDataUrl(coverPreviewUrl);
+    logMessage(`Pobrano okładkę z repo do eksportu: ${coverPreviewUrl}`);
+  } catch (coverError) {
+    console.warn(coverError);
+    logMessage(`Nie udało się pobrać okładki z repo: ${coverPreviewUrl}`);
+  }
+}
+
+project.cover = {
+  name: repoCoverFileName,
+  dataUrl: coverDataUrl || coverPreviewUrl
+};
+project.meta.coverFileName = repoCoverFileName || "";
+
 
 
 
