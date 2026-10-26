@@ -1392,27 +1392,87 @@ function buildOdtStylesXml() {
       <style:text-properties fo:font-size="12pt"/>
     </style:default-style>
 
-    <style:style style:name="P1" style:family="paragraph"/>
+    <style:style style:name="P1" style:family="paragraph">
+      <style:paragraph-properties fo:text-align="left"/>
+    </style:style>
+    <style:style style:name="P1Center" style:family="paragraph" style:parent-style-name="P1">
+      <style:paragraph-properties fo:text-align="center"/>
+    </style:style>
+    <style:style style:name="P1Right" style:family="paragraph" style:parent-style-name="P1">
+      <style:paragraph-properties fo:text-align="right"/>
+    </style:style>
+    <style:style style:name="P1Justify" style:family="paragraph" style:parent-style-name="P1">
+      <style:paragraph-properties fo:text-align="justify"/>
+    </style:style>
+
     <style:style style:name="Heading1" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="18pt" fo:font-weight="bold"/>
-      <style:paragraph-properties fo:margin-top="0.5cm" fo:margin-bottom="0.2cm"/>
+      <style:paragraph-properties fo:margin-top="0.5cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
     </style:style>
+    <style:style style:name="Heading1Center" style:family="paragraph" style:parent-style-name="Heading1">
+      <style:paragraph-properties fo:text-align="center"/>
+    </style:style>
+    <style:style style:name="Heading1Right" style:family="paragraph" style:parent-style-name="Heading1">
+      <style:paragraph-properties fo:text-align="right"/>
+    </style:style>
+    <style:style style:name="Heading1Justify" style:family="paragraph" style:parent-style-name="Heading1">
+      <style:paragraph-properties fo:text-align="justify"/>
+    </style:style>
+
     <style:style style:name="Heading2" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
-      <style:paragraph-properties fo:margin-top="0.4cm" fo:margin-bottom="0.2cm"/>
+      <style:paragraph-properties fo:margin-top="0.4cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
     </style:style>
+    <style:style style:name="Heading2Center" style:family="paragraph" style:parent-style-name="Heading2">
+      <style:paragraph-properties fo:text-align="center"/>
+    </style:style>
+    <style:style style:name="Heading2Right" style:family="paragraph" style:parent-style-name="Heading2">
+      <style:paragraph-properties fo:text-align="right"/>
+    </style:style>
+    <style:style style:name="Heading2Justify" style:family="paragraph" style:parent-style-name="Heading2">
+      <style:paragraph-properties fo:text-align="justify"/>
+    </style:style>
+
     <style:style style:name="Heading3" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="14pt" fo:font-weight="bold"/>
-      <style:paragraph-properties fo:margin-top="0.3cm" fo:margin-bottom="0.2cm"/>
+      <style:paragraph-properties fo:margin-top="0.3cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
     </style:style>
+    <style:style style:name="Heading3Center" style:family="paragraph" style:parent-style-name="Heading3">
+      <style:paragraph-properties fo:text-align="center"/>
+    </style:style>
+    <style:style style:name="Heading3Right" style:family="paragraph" style:parent-style-name="Heading3">
+      <style:paragraph-properties fo:text-align="right"/>
+    </style:style>
+    <style:style style:name="Heading3Justify" style:family="paragraph" style:parent-style-name="Heading3">
+      <style:paragraph-properties fo:text-align="justify"/>
+    </style:style>
+
     <style:style style:name="Heading4" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="13pt" fo:font-weight="bold"/>
-      <style:paragraph-properties fo:margin-top="0.3cm" fo:margin-bottom="0.2cm"/>
+      <style:paragraph-properties fo:margin-top="0.3cm" fo:margin-bottom="0.2cm" fo:text-align="left"/>
+    </style:style>
+    <style:style style:name="Heading4Center" style:family="paragraph" style:parent-style-name="Heading4">
+      <style:paragraph-properties fo:text-align="center"/>
+    </style:style>
+    <style:style style:name="Heading4Right" style:family="paragraph" style:parent-style-name="Heading4">
+      <style:paragraph-properties fo:text-align="right"/>
+    </style:style>
+    <style:style style:name="Heading4Justify" style:family="paragraph" style:parent-style-name="Heading4">
+      <style:paragraph-properties fo:text-align="justify"/>
     </style:style>
 
     <style:style style:name="Quote" style:family="paragraph">
-      <style:paragraph-properties fo:margin-left="1cm" fo:margin-right="0.5cm"/>
+      <style:paragraph-properties fo:margin-left="1cm" fo:margin-right="0.5cm" fo:text-align="left"/>
       <style:text-properties fo:font-style="italic"/>
+    </style:style>
+    <style:style style:name="QuoteCenter" style:family="paragraph" style:parent-style-name="Quote">
+      <style:paragraph-properties fo:text-align="center"/>
+    </style:style>
+    <style:style style:name="QuoteRight" style:family="paragraph" style:parent-style-name="Quote">
+      <style:paragraph-properties fo:text-align="right"/>
+    </style:style>
+    <style:style style:name="QuoteJustify" style:family="paragraph" style:parent-style-name="Quote">
+      <style:paragraph-properties fo:text-align="justify"/>
     </style:style>
 
     <style:style style:name="Bold" style:family="text">
