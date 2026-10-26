@@ -910,67 +910,9 @@ function collectChapterImagesAndRewrite(html, chapterIndex, imageRegistry) {
   return source.innerHTML || "<p></p>";
 }
 
-function sanitizeChapterNodeForExport(node, doc) {
-  if (!node) return null;
 
-  const ELEMENT_NODE = 1;
-  const TEXT_NODE = 3;
+TUTAJ_1
 
-  if (node.nodeType === TEXT_NODE) {
-    return doc.createTextNode(node.textContent || "");
-  }
-
-  if (node.nodeType !== ELEMENT_NODE) {
-    return null;
-  }
-
-  const tag = node.tagName.toLowerCase();
-
-  if (tag === "img") {
-    const wrapper = doc.createElement("div");
-    const cleanImg = doc.createElement("img");
-    cleanImg.setAttribute("src", node.getAttribute("src") || "");
-    cleanImg.setAttribute("alt", node.getAttribute("alt") || "");
-
-    let style = node.getAttribute("style") || "";
-    if (!/display\s*:/i.test(style)) style += "display:block;";
-    if (!/height\s*:/i.test(style)) style += "height:auto;";
-    if (!/max-width\s*:/i.test(style)) style += "max-width:100%;";
-    cleanImg.setAttribute("style", style);
-
-    wrapper.appendChild(cleanImg);
-    return wrapper;
-  }
-
-  const allowed = new Set([
-    "p", "h1", "h2", "h3", "h4", "h5", "h6",
-    "ul", "ol", "li", "blockquote",
-    "strong", "b", "em", "i", "u", "br",
-    "div", "section", "article"
-  ]);
-
-  if (!allowed.has(tag)) {
-    const frag = doc.createDocumentFragment();
-    Array.from(node.childNodes).forEach((child) => {
-      const cleanChild = sanitizeChapterNodeForExport(child, doc);
-      if (cleanChild) frag.appendChild(cleanChild);
-    });
-    return frag;
-  }
-
-  const clean = doc.createElement(tag);
-
-  if (tag === "blockquote") {
-    clean.setAttribute("style", "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;");
-  }
-
-  Array.from(node.childNodes).forEach((child) => {
-    const cleanChild = sanitizeChapterNodeForExport(child, doc);
-    if (cleanChild) clean.appendChild(cleanChild);
-  });
-
-  return clean;
-}
 
 function serializeChapterToXhtmlBody(html) {
   const source = document.createElement("div");
@@ -1299,6 +1241,9 @@ async function exportEpub() {
     logMessage(`Błąd eksportu EPUB: ${error?.message || error}`);
   }
 }
+
+TUTAJ_2
+
 
 /* ---------- ODT ---------- */
 
