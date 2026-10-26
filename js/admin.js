@@ -959,7 +959,7 @@ function sanitizeChapterNodeForExport(node, doc) {
     return frag;
   }
 
-  const clean = doc.createElement(tag);
+    const clean = doc.createElement(tag);
 
   let style = "";
   const sourceStyle = node.getAttribute("style") || "";
@@ -967,6 +967,11 @@ function sanitizeChapterNodeForExport(node, doc) {
   const textAlignMatch = sourceStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
   if (textAlignMatch) {
     style += `text-align:${textAlignMatch[1].toLowerCase()};`;
+  }
+
+  const lineHeightMatch = sourceStyle.match(/line-height\s*:\s*([0-9.]+)\s*;?/i);
+  if (lineHeightMatch) {
+    style += `line-height:${lineHeightMatch[1]};`;
   }
 
   if (tag === "blockquote") {
@@ -3479,7 +3484,7 @@ function updateToolbarActiveState() {
     hasListStyle = true;
   }
 
-  if (hasTextStyle) {
+   if (hasTextStyle) {
     setToolbarDropdownActive("textMenu");
   }
 
@@ -3493,6 +3498,10 @@ function updateToolbarActiveState() {
 
   if (hasAlignStyle) {
     setToolbarDropdownActive("alignMenu");
+  }
+
+  if (hasLineHeightStyle) {
+    setToolbarDropdownActive("lineHeightMenu");
   }
 }
 
@@ -3594,6 +3603,7 @@ function bindEditorToolbar() {
     const cmd = button.dataset.cmd;
     const block = button.dataset.block;
     const value = button.dataset.value || null;
+    const lineHeight = button.dataset.lineHeight || null;
 
     if (button.id === "insertImageBtn") {
       closeAllDropdowns();
@@ -3627,6 +3637,12 @@ function bindEditorToolbar() {
 
     if (button.id === "applyImageWidthBtn") {
       applyImageWidth();
+      closeAllDropdowns();
+      return;
+    }
+
+    if (lineHeight) {
+      applyLineHeightToSelection(lineHeight);
       closeAllDropdowns();
       return;
     }
