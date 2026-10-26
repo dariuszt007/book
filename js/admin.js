@@ -985,10 +985,16 @@ function sanitizeChapterNodeForExport(node, doc) {
   let style = "";
   const sourceStyle = node.getAttribute("style") || "";
 
+
   const textAlignMatch = sourceStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
-  if (textAlignMatch) {
-    style += `text-align:${textAlignMatch[1].toLowerCase()};`;
-  }
+if (textAlignMatch) {
+  style += `text-align:${textAlignMatch[1].toLowerCase()};`;
+}
+
+const lineHeightMatch = sourceStyle.match(/line-height\s*:\s*([0-9.]+)\s*;?/i);
+if (lineHeightMatch) {
+  style += `line-height:${lineHeightMatch[1]};`;
+}
 
   if (tag === "blockquote") {
     style += "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;";
