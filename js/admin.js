@@ -959,7 +959,7 @@ function sanitizeChapterNodeForExport(node, doc) {
     return frag;
   }
 
-    const clean = doc.createElement(tag);
+  const clean = doc.createElement(tag);
 
   let style = "";
   const sourceStyle = node.getAttribute("style") || "";
@@ -967,11 +967,6 @@ function sanitizeChapterNodeForExport(node, doc) {
   const textAlignMatch = sourceStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
   if (textAlignMatch) {
     style += `text-align:${textAlignMatch[1].toLowerCase()};`;
-  }
-
-  const lineHeightMatch = sourceStyle.match(/line-height\s*:\s*([0-9.]+)\s*;?/i);
-  if (lineHeightMatch) {
-    style += `line-height:${lineHeightMatch[1]};`;
   }
 
   if (tag === "blockquote") {
@@ -3382,7 +3377,6 @@ function updateToolbarActiveState() {
   let hasHeadingStyle = false;
   let hasListStyle = false;
   let hasAlignStyle = false;
-  let hasLineHeightStyle = false;
 
   try {
     if (document.queryCommandState("bold")) {
@@ -3439,21 +3433,6 @@ function updateToolbarActiveState() {
 
   const blockTag = findClosestBlockTag(node);
 
-    const activeLineHeight = getActiveLineHeight(node);
-  const normalizedLineHeight = (
-    Math.abs(parseFloat(activeLineHeight) - 1) < 0.03 ? "1" :
-    Math.abs(parseFloat(activeLineHeight) - 1.15) < 0.03 ? "1.15" :
-    Math.abs(parseFloat(activeLineHeight) - 1.5) < 0.05 ? "1.5" :
-    Math.abs(parseFloat(activeLineHeight) - 1.75) < 0.05 ? "1.75" :
-    Math.abs(parseFloat(activeLineHeight) - 2) < 0.05 ? "2" :
-    ""
-  );
-
-  if (normalizedLineHeight) {
-    setToolbarButtonActive(`[data-line-height="${normalizedLineHeight}"]`);
-    hasLineHeightStyle = true;
-  }
-
   if (blockTag === "blockquote") {
     setToolbarButtonActive('[data-cmd="formatBlock"][data-value="blockquote"]');
     hasTextStyle = true;
@@ -3484,7 +3463,7 @@ function updateToolbarActiveState() {
     hasListStyle = true;
   }
 
-   if (hasTextStyle) {
+  if (hasTextStyle) {
     setToolbarDropdownActive("textMenu");
   }
 
@@ -3498,10 +3477,6 @@ function updateToolbarActiveState() {
 
   if (hasAlignStyle) {
     setToolbarDropdownActive("alignMenu");
-  }
-
-  if (hasLineHeightStyle) {
-    setToolbarDropdownActive("lineHeightMenu");
   }
 }
 
@@ -3593,65 +3568,20 @@ function bindEditorDropdowns() {
   });
 }
 
-
-
 function bindEditorToolbar() {
   if (!editorToolbar) return;
 
-  editorToolbar.addEventListener("mousedown", (event) => {
-    if (
-      event.target.closest(".editor-tool-btn") ||
-      event.target.closest(".toolbar-dropdown__toggle")
-    ) {
-      event.preventDefault();
-    }
-  });
-
-  editorToolbar.addEventListener("touchstart", (event) => {
-    if (
-      event.target.closest(".editor-tool-btn") ||
-      event.target.closest(".toolbar-dropdown__toggle")
-    ) {
-      event.preventDefault();
-    }
-  }, { passive: false });
-
   editorToolbar.addEventListener("click", (event) => {
-    const dropdownToggle = event.target.closest(".toolbar-dropdown__toggle");
-
-    if (dropdownToggle) {
-      event.preventDefault();
-      event.stopPropagation();
-      toggleDropdown(dropdownToggle.dataset.dropdown);
-      return;
-    }
-
     const button = event.target.closest(".editor-tool-btn");
     if (!button) return;
-
-    event.preventDefault();
-    event.stopPropagation();
 
     const cmd = button.dataset.cmd;
     const block = button.dataset.block;
     const value = button.dataset.value || null;
-    const lineHeight = button.dataset.lineHeight || null;
-
-    if (lineHeight) {
-      applyLineHeightToSelection(lineHeight);
-      closeAllDropdowns();
-      return;
-    }
-
-    if (block) {
-      setBlock(block);
-      closeAllDropdowns();
-      return;
-    }
 
     if (button.id === "insertImageBtn") {
-      inlineImageInput?.click();
       closeAllDropdowns();
+      inlineImageInput?.click();
       return;
     }
 
@@ -3662,25 +3592,31 @@ function bindEditorToolbar() {
     }
 
     if (button.id === "alignImageLeftBtn") {
-      alignSelectedImage("left");
+      setActiveImageAlignment("left");
       closeAllDropdowns();
       return;
     }
 
     if (button.id === "alignImageCenterBtn") {
-      alignSelectedImage("center");
+      setActiveImageAlignment("center");
       closeAllDropdowns();
       return;
     }
 
     if (button.id === "alignImageRightBtn") {
-      alignSelectedImage("right");
+      setActiveImageAlignment("right");
       closeAllDropdowns();
       return;
     }
 
     if (button.id === "applyImageWidthBtn") {
-      applySelectedImageWidth();
+      applyImageWidth();
+      closeAllDropdowns();
+      return;
+    }
+
+    if (block) {
+      setBlock(block);
       closeAllDropdowns();
       return;
     }
@@ -3693,42 +3629,6 @@ function bindEditorToolbar() {
 }
 
 /* ---------- drag ---------- */
-function applyLineHeightToSelection(value) {
-  if (!bookEditor) return;
-
-  bookEditor.focus();
-  restoreSelection();
-
-  let block = getSelectionBlockElement();
-
-  if (!block) {
-    const node = getSelectionContainerNode();
-    if (node && node.nodeType === Node.ELEMENT_NODE) {
-      block = node.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
-    }
-  }
-
-  if (!block && bookEditor.lastElementChild instanceof Element) {
-    block = bookEditor.lastElementChild.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
-  }
-
-  if (!block || !bookEditor.contains(block)) {
-    alert("Najpierw ustaw kursor w akapicie.");
-    return;
-  }
-
-  block.style.lineHeight = String(value);
-
-  rememberSelection();
-  syncCurrentChapterFromEditor({ preserveCaret: true });
-  updateToolbarActiveState();
-}
-
-  block.style.lineHeight = String(value);
-  rememberSelection();
-  syncCurrentChapterFromEditor({ preserveCaret: true });
-  updateToolbarActiveState();
-}
 
 function createTouchPlaceholder() {
   const placeholder = document.createElement("div");
