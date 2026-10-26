@@ -1761,7 +1761,107 @@ function convertInlineNodeToDocxRuns(node, mediaRegistry) {
   return Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join("");
 }
 
-POPRAWKA_3B
+function convertBlockNodeToDocx(node, mediaRegistry) {
+  const TEXT_NODE = 3;
+  const ELEMENT_NODE = 1;
+
+  if (node.nodeType === TEXT_NODE) {
+    const text = (node.textContent || "").trim();
+    if (!text) return "";
+    return createDocxParagraph(
+      `<w:r><w:t xml:space="preserve">${xmlEscapeText(text)}</w:t></w:r>`,
+      null,
+      { align: "left" }
+    );
+  }
+
+  if (node.nodeType !== ELEMENT_NODE) return "";
+
+  const tag = node.tagName.toLowerCase();
+  const align = getNodeTextAlign(node);
+
+  if (tag === "p") {
+    return createDocxParagraph(
+      Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+      null,
+      { align }
+    );
+  }
+
+  if (tag === "h1") {
+    return createDocxParagraph(
+      Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+      "Heading1",
+      { align }
+    );
+  }
+
+  if (tag === "h2") {
+    return createDocxParagraph(
+      Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+      "Heading2",
+      { align }
+    );
+  }
+
+  if (tag === "h3") {
+    return createDocxParagraph(
+      Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+      "Heading3",
+      { align }
+    );
+  }
+
+  if (tag === "h4") {
+    return createDocxParagraph(
+      Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+      "Heading4",
+      { align }
+    );
+  }
+
+  if (tag === "blockquote") {
+    return createDocxParagraph(
+      Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+      null,
+      { quote: true, align }
+    );
+  }
+
+  if (tag === "ul") {
+    return Array.from(node.children)
+      .filter((li) => li.tagName?.toLowerCase() === "li")
+      .map((li) => createDocxParagraph(
+        Array.from(li.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+        null,
+        { list: true, numbered: false, align: getNodeTextAlign(li) }
+      ))
+      .join("");
+  }
+
+  if (tag === "ol") {
+    return Array.from(node.children)
+      .filter((li) => li.tagName?.toLowerCase() === "li")
+      .map((li) => createDocxParagraph(
+        Array.from(li.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
+        null,
+        { list: true, numbered: true, align: getNodeTextAlign(li) }
+      ))
+      .join("");
+  }
+
+  if (tag === "div" || tag === "section" || tag === "article") {
+    return Array.from(node.childNodes).map((child) => convertBlockNodeToDocx(child, mediaRegistry)).join("");
+  }
+
+  if (tag === "img") {
+    return createDocxParagraph(convertInlineNodeToDocxRuns(node, mediaRegistry), null, { align });
+  }
+
+  return Array.from(node.childNodes).map((child) => convertBlockNodeToDocx(child, mediaRegistry)).join("");
+}
+
+
 
 
 function buildDocxDocumentXml(mediaRegistry) {
