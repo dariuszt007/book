@@ -2745,11 +2745,12 @@ async function openRepoBook(book, duplicate = false) {
     project.meta.fileName = duplicate
       ? `${slugify(result.metadata?.title || book.title || "book")}.epub`
       : (epubPath.split("/").pop() || `${slugify(book.title || "book")}.epub`);
-    project.cover = {
-      name: book.cover ? book.cover.split("/").pop() : "",
-      dataUrl: book.cover || ""
-    };
-    project.meta.coverFileName = project.cover.name || "";
+
+
+    TUTAJ
+
+
+    
     project.chapters = result.chapters?.length ? result.chapters : [createEmptyChapter(0)];
 
     currentChapterIndex = 0;
