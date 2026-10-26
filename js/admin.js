@@ -90,8 +90,6 @@ const inlineImageInput = document.getElementById("inlineImageInput");
 const imageWidthInput = document.getElementById("imageWidthInput");
 const dropdownToggles = document.querySelectorAll("[data-dropdown]");
 
-const editorFullscreenBtn = document.getElementById("editorFullscreenBtn");
-
 let repoBooks = [];
 let currentChapterIndex = -1;
 let currentScreenKey = "start";
@@ -770,25 +768,6 @@ async function copyLibraryEntry() {
 
 /* ---------- export helpers ---------- */
 
-function getSelectionBlockElement() {
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) return null;
-
-  let node = selection.anchorNode;
-  if (!node) return null;
-
-  if (node.nodeType === Node.TEXT_NODE) {
-    node = node.parentElement;
-  }
-
-  if (!(node instanceof Element)) return null;
-
-  const block = node.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, div");
-  if (!block || !bookEditor.contains(block)) return null;
-
-  return block;
-}
-
 function parseDataUrl(dataUrl) {
   const match = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/);
   if (!match) return null;
@@ -985,16 +964,10 @@ function sanitizeChapterNodeForExport(node, doc) {
   let style = "";
   const sourceStyle = node.getAttribute("style") || "";
 
-
   const textAlignMatch = sourceStyle.match(/text-align\s*:\s*(left|right|center|justify)\s*;?/i);
-if (textAlignMatch) {
-  style += `text-align:${textAlignMatch[1].toLowerCase()};`;
-}
-
-const lineHeightMatch = sourceStyle.match(/line-height\s*:\s*([0-9.]+)\s*;?/i);
-if (lineHeightMatch) {
-  style += `line-height:${lineHeightMatch[1]};`;
-}
+  if (textAlignMatch) {
+    style += `text-align:${textAlignMatch[1].toLowerCase()};`;
+  }
 
   if (tag === "blockquote") {
     style += "margin:1em 0;padding-left:1em;border-left:4px solid #cccccc;";
@@ -3368,8 +3341,6 @@ function getActiveAlignment(node) {
   return "left";
 }
 
-
-
 function clearToolbarActiveState() {
   if (!editorToolbar) return;
 
@@ -3380,15 +3351,6 @@ function clearToolbarActiveState() {
   editorToolbar.querySelectorAll(".toolbar-dropdown__toggle.is-active").forEach((button) => {
     button.classList.remove("is-active");
   });
-  editorToolbar?.addEventListener("click", (event) => {
-  const btn = event.target.closest("[data-line-height]");
-  if (!btn) return;
-
-  const value = btn.getAttribute("data-line-height");
-  if (!value) return;
-
-  applyLineHeightToSelection(value);
-});
 }
 
 function setToolbarButtonActive(selector) {
