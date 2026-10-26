@@ -658,6 +658,8 @@ function fileToDataUrl(file) {
   });
 }
 
+TUTAJ_1
+
 function saveDraft() {
   persistCurrentChapter();
   saveMetaFromInputs();
@@ -2747,15 +2749,13 @@ async function openRepoBook(book, duplicate = false) {
       ? `${slugify(result.metadata?.title || book.title || "book")}.epub`
       : (epubPath.split("/").pop() || `${slugify(book.title || "book")}.epub`);
 
-    const rawCoverPath = String(book.cover || "").trim();
-    const repoCoverFileName = rawCoverPath ? rawCoverPath.split("/").pop() : "";
 
-    project.cover = {
-      name: repoCoverFileName,
-      dataUrl: repoCoverFileName ? `/book/covers/${repoCoverFileName}` : ""
-    };
-    project.meta.coverFileName = repoCoverFileName || "";
 
+    TUTAJ_2
+
+
+
+    
     project.chapters = result.chapters?.length ? result.chapters : [createEmptyChapter(0)];
 
     currentChapterIndex = 0;
