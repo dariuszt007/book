@@ -1733,76 +1733,8 @@ function convertInlineNodeToDocxRuns(node, mediaRegistry) {
   return Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join("");
 }
 
-function convertBlockNodeToDocx(node, mediaRegistry) {
-  const TEXT_NODE = 3;
-  const ELEMENT_NODE = 1;
+POPRAWKA_3B
 
-  if (node.nodeType === TEXT_NODE) {
-    const text = (node.textContent || "").trim();
-    if (!text) return "";
-    return createDocxParagraph(`<w:r><w:t xml:space="preserve">${xmlEscapeText(text)}</w:t></w:r>`);
-  }
-
-  if (node.nodeType !== ELEMENT_NODE) return "";
-
-  const tag = node.tagName.toLowerCase();
-
-  if (tag === "p") {
-    return createDocxParagraph(Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""));
-  }
-
-  if (tag === "h1") {
-    return createDocxParagraph(Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""), "Heading1");
-  }
-
-  if (tag === "h2") {
-    return createDocxParagraph(Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""), "Heading2");
-  }
-
-  if (tag === "h3") {
-    return createDocxParagraph(Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""), "Heading3");
-  }
-
-  if (tag === "h4") {
-    return createDocxParagraph(Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""), "Heading4");
-  }
-
-  if (tag === "blockquote") {
-    return createDocxParagraph(Array.from(node.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""), null, { quote: true });
-  }
-
-  if (tag === "ul") {
-    return Array.from(node.children)
-      .filter((li) => li.tagName?.toLowerCase() === "li")
-      .map((li) => createDocxParagraph(
-        Array.from(li.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
-        null,
-        { list: true, numbered: false }
-      ))
-      .join("");
-  }
-
-  if (tag === "ol") {
-    return Array.from(node.children)
-      .filter((li) => li.tagName?.toLowerCase() === "li")
-      .map((li) => createDocxParagraph(
-        Array.from(li.childNodes).map((child) => convertInlineNodeToDocxRuns(child, mediaRegistry)).join(""),
-        null,
-        { list: true, numbered: true }
-      ))
-      .join("");
-  }
-
-  if (tag === "div" || tag === "section" || tag === "article") {
-    return Array.from(node.childNodes).map((child) => convertBlockNodeToDocx(child, mediaRegistry)).join("");
-  }
-
-  if (tag === "img") {
-    return createDocxParagraph(convertInlineNodeToDocxRuns(node, mediaRegistry));
-  }
-
-  return Array.from(node.childNodes).map((child) => convertBlockNodeToDocx(child, mediaRegistry)).join("");
-}
 
 function buildDocxDocumentXml(mediaRegistry) {
   const bodyParts = [];
